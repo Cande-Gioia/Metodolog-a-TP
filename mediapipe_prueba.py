@@ -9,7 +9,7 @@ mp_pose = mp.solutions.pose
 # 0 is the number asigned to the cam device
 cap = cv2.VideoCapture(0)
 ## Setup mediapipe instance
-with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:  #static_image_mode: false
     while cap.isOpened():
         # Frame = gives us the image
         ret, frame = cap.read()
@@ -22,6 +22,10 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         # Make detection
         ###################################################
         results = pose.process(image)
+        
+
+
+
 
         # Recolor back to BGR
         image.flags.writeable = True
