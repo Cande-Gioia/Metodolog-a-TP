@@ -3,8 +3,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
-path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
-
+#path = 'Videos Jugadores Profesionales\Real Madrid 3 corto.mp4' 
+path = 'Videos Bruno\\bruno_30grad_cortado.mp4' 
 
 #NO FUNCIONAN:
 '''
@@ -114,9 +114,6 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                     print('Right Foot:',right_foot_index)
                     
                     
-                    print(angle_A)
-                    print(angle_B)
-                    print(angle_C)
                     x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
                     y = [-right_shoulder[1], -right_hip[1], -right_knee[1], -right_ankle[1], -right_foot_index[1]]
                     plt.scatter(x, y, color = 'black')
