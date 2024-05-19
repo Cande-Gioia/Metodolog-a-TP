@@ -3,7 +3,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
-path = 'Videos Jugadores Profesionales\Real Madrid 5.mp4' 
+path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
 
 
 #NO FUNCIONAN:
@@ -25,7 +25,7 @@ real madrid 6 (al final)
 real madrid 8 (al comienzo)
 real madrid 10 (al comienzo y al final)
 Kevin De Bruyne (al principio CORTARLO DE NUEVO)
-Cristiano Ronald 1 (al principio no hay luz y después va re lento, se vuelve a romper)
+Cristiano Ronaldo 1 (al principio no hay luz y después va re lento, se vuelve a romper)
 '''
 
 #FUNCIONAN:
@@ -89,18 +89,20 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                                     mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
                                     )          
 
-                            
-            
-                cv2.imshow('Mediapipe Feed', image)
+                window_name = 'Mi Ventana'
+                cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+
+                cv2.resizeWindow(window_name, 800, 600)
+                cv2.imshow(window_name, image)
                 # Get coordinates
                 
                 if(results.pose_landmarks != None):
                     landmarks = results.pose_landmarks.landmark
-                    right_shoulder = [landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y]
-                    right_hip = [landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x,landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y]
-                    right_knee = [landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x,landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y]
-                    right_ankle = [landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x,landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y]
-                    right_foot_index = [landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x,landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y]
+                    right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
+                    right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y]
+                    right_knee = [landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y]
+                    right_ankle = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
+                    right_foot_index = [landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x,landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y]
                     angle_A.append(angles_calc(right_shoulder, right_hip, right_knee))
                     angle_B.append(angles_calc(right_hip, right_knee, right_ankle))
                     angle_C.append(angles_calc(right_knee, right_ankle, right_foot_index))
@@ -110,21 +112,19 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                     print('Right Knee:',right_knee)
                     print('Right Ankle:',right_ankle)
                     print('Right Foot:',right_foot_index)
-                    '''
-                    if i == 12:
-                        print(angle_A)
-                        print(angle_B)
-                        print(angle_C)
-                        x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
-                        y = [-right_shoulder[1], -right_hip[1], -right_knee[1], -right_ankle[1], -right_foot_index[1]]
-                        plt.scatter(x, y, color = 'black')
-                        plt.gca().set_aspect(16/9)
-                        plt.show()
-                        if cv2.waitKey(10) & 0xFF == ord('q'):
-                            break
-                 '''   
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
+                    
+                    
+                    print(angle_A)
+                    print(angle_B)
+                    print(angle_C)
+                    x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
+                    y = [-right_shoulder[1], -right_hip[1], -right_knee[1], -right_ankle[1], -right_foot_index[1]]
+                    plt.scatter(x, y, color = 'black')
+                    plt.gca().set_aspect(aspect = 9/16, adjustable=None, anchor=None, share=False)
+                    plt.show()
+                    while(cv2.waitKey(10) & 0xFF == ord('q')):
                         break
+                 
             else:
                  break
           
