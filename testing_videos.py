@@ -4,7 +4,7 @@ import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = 'Videos Bruno\\bruno_6_metros_cort2.mp4' 
+path = 'Videos Bruno\\bruno_120grad_cortado.mp4' 
 
 # Point1 es el de izquierda 
 # Point 2 es el de derecha
@@ -91,7 +91,7 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                     
                     
                     '''
-                    if (i == 15):
+                    if (i == 20):
                         x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
                         y = [right_shoulder[1], right_hip[1], right_knee[1], right_ankle[1], right_foot_index[1]]
                         plt.scatter(x, y, color = 'black')
@@ -100,8 +100,9 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                         while(not (cv2.waitKey(10) & 0xFF == ord('q'))):
                             print(angles_calc(right_shoulder, right_hip, right_knee)) 
                             pass
-                    '''         
-
+                    '''        
+                    while(not cv2.waitKey(10) & 0xFF == ord('q')):
+                         pass
                     if cv2.waitKey(10) & 0xFF == ord('q'):
                         break
                  
