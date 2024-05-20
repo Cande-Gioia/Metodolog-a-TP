@@ -4,7 +4,7 @@ import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = 'Videos Bruno\\bruno_120grad_cortado.mp4' 
+path = 'Videos Bruno\\bruno_3_metros_cortado_menorcalidad.mp4' 
 
 # Point1 es el de izquierda 
 # Point 2 es el de derecha
@@ -43,7 +43,6 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
     while video.isOpened():
             i = i +1
             ret, frame = video.read()
-
             if(ret):
                  
                 # Recolor image to RGB
