@@ -4,7 +4,7 @@ import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = 'Videos Bruno\\bruno_3_metros_cortado_menorcalidad.mp4' 
+path = 'Videos Bruno\\Bruno 1.mp4' 
 
 # Point1 es el de izquierda 
 # Point 2 es el de derecha
