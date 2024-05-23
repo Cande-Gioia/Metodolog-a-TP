@@ -3,6 +3,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import savgol_filter
 
 path = 'Videos Bruno\\Bruno 1.mp4' 
 
@@ -37,6 +38,8 @@ angle_A = []
 angle_B = []
 angle_C = []
 video = cv2.VideoCapture(path)
+
+fps = 240
 
 ## Setup mediapipe instance
 with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detection_confidence = 0.5, min_tracking_confidence = 0.5, model_complexity = 2) as pose:
@@ -100,8 +103,8 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                             print(angles_calc(right_shoulder, right_hip, right_knee)) 
                             pass
                     '''        
-                    while(not cv2.waitKey(10) & 0xFF == ord('q')):
-                         pass
+                    '''while(not cv2.waitKey(10) & 0xFF == ord('q')):
+                         pass'''
                     if cv2.waitKey(10) & 0xFF == ord('q'):
                         break
                  
@@ -115,11 +118,33 @@ video.release()
 # Close windows
 cv2.destroyAllWindows()
 
-t = np.arange(1, len(angle_A) + 1, step = 1 )
+angle_A = savgol_filter(angle_A, window_length=40, polyorder=2)
+angle_B = savgol_filter(angle_B, window_length=40, polyorder=2)
+angle_C = savgol_filter(angle_C, window_length=40, polyorder=2)
+
+vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
+vel_angle_B = [(angle_B[i] - angle_B[i-1]) * fps for i in range(1, len(angle_B))]
+vel_angle_C = [(angle_C[i] - angle_C[i-1]) * fps for i in range(1, len(angle_C))]
+
+t = np.arange(1, len(vel_angle_C) + 1, step = 1 )
+
+plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
+plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
+#plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
+
+plt.xlabel("Frame")
+plt.ylabel("Ángulo [°]")
+plt.legend()
+
+plt.grid()
+
+plt.show()
+
+t = np.arange(1, len(angle_C) + 1, step = 1 )
 
 plt.plot(t, angle_A, color = 'black', label='Cadera')
 plt.plot(t, angle_B, color = 'blue', label='Rodilla')
-plt.plot(t, angle_C, color = 'red', label="Tobillo")
+#plt.plot(t, angle_C, color = 'red', label="Tobillo")
 
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
