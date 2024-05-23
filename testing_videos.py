@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-path = 'Videos Bruno\\Bruno 1.mp4' 
+path = 'Videos Bruno\\Bruno 2.mp4' 
 
 # Point1 es el de izquierda 
 # Point 2 es el de derecha
@@ -118,20 +118,45 @@ video.release()
 # Close windows
 cv2.destroyAllWindows()
 
-angle_A = savgol_filter(angle_A, window_length=40, polyorder=2)
-angle_B = savgol_filter(angle_B, window_length=40, polyorder=2)
-angle_C = savgol_filter(angle_C, window_length=40, polyorder=2)
+'''
+angle_A1 = savgol_filter(angle_A, window_length=10, polyorder=1)
+angle_B1 = savgol_filter(angle_B, window_length=10, polyorder=1)
+angle_C1 = savgol_filter(angle_C, window_length=10, polyorder=1)
+'''
+angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
+angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
+angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
+
 
 vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
 vel_angle_B = [(angle_B[i] - angle_B[i-1]) * fps for i in range(1, len(angle_B))]
 vel_angle_C = [(angle_C[i] - angle_C[i-1]) * fps for i in range(1, len(angle_C))]
 
-t = np.arange(1, len(vel_angle_C) + 1, step = 1 )
+'''
+vel_angle_A1 = [(angle_A1[i] - angle_A1[i-1]) * fps for i in range(1, len(angle_A1))]
+vel_angle_B1 = [(angle_B1[i] - angle_B1[i-1]) * fps for i in range(1, len(angle_B1))]
+vel_angle_C1 = [(angle_C1[i] - angle_C1[i-1]) * fps for i in range(1, len(angle_C1))]
 
-plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
-plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
-#plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
 
+vel_angle_A1 = savgol_filter(vel_angle_A1, window_length=20, polyorder=2)
+vel_angle_B1 = savgol_filter(vel_angle_B1, window_length=20, polyorder=2)
+vel_angle_C1 = savgol_filter(vel_angle_C1, window_length=20, polyorder=2)
+'''
+
+vel_angle_A = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
+vel_angle_B = savgol_filter(vel_angle_B, window_length=20, polyorder=1)
+vel_angle_C = savgol_filter(vel_angle_C, window_length=20, polyorder=1)
+
+
+t = np.arange(1, len(angle_A) + 1, step = 1 )
+
+plt.plot(t, angle_A, color = 'black', label='Cadera')
+plt.plot(t, angle_B, color = 'black', label='Rodilla')
+#plt.plot(t, angle_C, color = 'red', label="Tobillo")
+'''
+plt.plot(t, angle_A1, color = 'blue', label='Cadera')
+plt.plot(t, angle_B1, color = 'blue', label='Rodilla')
+'''
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()
@@ -140,12 +165,15 @@ plt.grid()
 
 plt.show()
 
-t = np.arange(1, len(angle_C) + 1, step = 1 )
+t = np.arange(1, len(vel_angle_C) + 1, step = 1 )
 
-plt.plot(t, angle_A, color = 'black', label='Cadera')
-plt.plot(t, angle_B, color = 'blue', label='Rodilla')
-#plt.plot(t, angle_C, color = 'red', label="Tobillo")
+plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
+plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
+#plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
 
+'''plt.plot(t, vel_angle_A1, color = 'blue', label='Cadera')
+plt.plot(t, vel_angle_B1, color = 'blue', label='Rodilla')
+'''
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()

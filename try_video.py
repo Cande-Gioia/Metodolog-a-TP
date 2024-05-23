@@ -47,8 +47,6 @@ Beckham
 # Point 2 es el de derecha
 # El ángulo lo da en sentido horario
 
-
-
 def angles_calc(point1, center, point2):
     vector1 = [point1[0] - center[0], point1[1] - center[1]]
     vector2 = [point2[0] - center[0], point2[1] - center[1]]
@@ -111,11 +109,13 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                                 mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
                                 )          
 
+            
             window_name = 'Mi Ventana'
             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
             cv2.resizeWindow(window_name, 800, 600)
             cv2.imshow(window_name, image)
+            
             # Get coordinates
             
             if(results.pose_landmarks != None):
@@ -131,14 +131,14 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                 angle_C.append(angles_calc(right_foot_index, right_ankle, right_knee))
 
                
-
+                '''
                 print('Frame:',i)
                 print('Right Shoulder:',right_shoulder)
                 print('Right Hip:',right_hip)
                 print('Right Knee:',right_knee)
                 print('Right Ankle:',right_ankle)
                 print('Right Foot:',right_foot_index)
-                
+                '''
                 
                 x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
                 y = [-right_shoulder[1], -right_hip[1], -right_knee[1], -right_ankle[1], -right_foot_index[1]]
@@ -164,30 +164,45 @@ video.release()
 # Close windows
 cv2.destroyAllWindows()
 
-angle_A = savgol_filter(angle_A, window_length=20, polyorder=2)
-angle_B = savgol_filter(angle_B, window_length=20, polyorder=2)
-angle_C = savgol_filter(angle_C, window_length=20, polyorder=2)
+'''
+angle_A1 = savgol_filter(angle_A, window_length=10, polyorder=1)
+angle_B1 = savgol_filter(angle_B, window_length=10, polyorder=1)
+angle_C1 = savgol_filter(angle_C, window_length=10, polyorder=1)
+'''
+angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
+angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
+angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
 
-angle_A1 = angle_A.rolling(window=5).mean()
-angle_B1 = angle_B.rolling(window=5).mean()
-angle_C1 = angle_C.rolling(window=5).mean()
 
 vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
 vel_angle_B = [(angle_B[i] - angle_B[i-1]) * fps for i in range(1, len(angle_B))]
 vel_angle_C = [(angle_C[i] - angle_C[i-1]) * fps for i in range(1, len(angle_C))]
 
-vel_angle_A = savgol_filter(vel_angle_A, window_length=10, polyorder=2)
-vel_angle_B = savgol_filter(vel_angle_B, window_length=10, polyorder=2)
-vel_angle_C = savgol_filter(vel_angle_C, window_length=10, polyorder=2)
+'''
+vel_angle_A1 = [(angle_A1[i] - angle_A1[i-1]) * fps for i in range(1, len(angle_A1))]
+vel_angle_B1 = [(angle_B1[i] - angle_B1[i-1]) * fps for i in range(1, len(angle_B1))]
+vel_angle_C1 = [(angle_C1[i] - angle_C1[i-1]) * fps for i in range(1, len(angle_C1))]
 
-t = np.arange(1, len(angle_C) + 1, step = 1 )
+
+vel_angle_A1 = savgol_filter(vel_angle_A1, window_length=20, polyorder=2)
+vel_angle_B1 = savgol_filter(vel_angle_B1, window_length=20, polyorder=2)
+vel_angle_C1 = savgol_filter(vel_angle_C1, window_length=20, polyorder=2)
+'''
+
+vel_angle_A = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
+vel_angle_B = savgol_filter(vel_angle_B, window_length=20, polyorder=1)
+vel_angle_C = savgol_filter(vel_angle_C, window_length=20, polyorder=1)
+
+
+t = np.arange(1, len(angle_A) + 1, step = 1 )
 
 plt.plot(t, angle_A, color = 'black', label='Cadera')
-plt.plot(t, angle_B, color = 'blue', label='Rodilla')
-plt.plot(t, angle_A1, color = 'black', label='Cadera')
-plt.plot(t, angle_B1, color = 'blue', label='Rodilla')
+plt.plot(t, angle_B, color = 'black', label='Rodilla')
 #plt.plot(t, angle_C, color = 'red', label="Tobillo")
-
+'''
+plt.plot(t, angle_A1, color = 'blue', label='Cadera')
+plt.plot(t, angle_B1, color = 'blue', label='Rodilla')
+'''
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()
@@ -202,6 +217,9 @@ plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
 plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
 #plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
 
+'''plt.plot(t, vel_angle_A1, color = 'blue', label='Cadera')
+plt.plot(t, vel_angle_B1, color = 'blue', label='Rodilla')
+'''
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()
