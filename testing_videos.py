@@ -5,10 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-path = 'Videos Bruno\\Bruno 2.mp4' 
+path = 'Videos Bruno\\Bruno 1.mp4' 
 
 # Point1 es el de izquierda 
-# Point 2 es el de derecha
+# Point 2 es el de derecho
 # El ángulo lo da en sentido horario
 def angles_calc(point1, center, point2):
     vector1 = [point1[0] - center[0], point1[1] - center[1]]
@@ -37,15 +37,22 @@ i = 0
 angle_A = []
 angle_B = []
 angle_C = []
+
+
+right_shoulder = []
+right_hip = []
+right_knee = []
+right_ankle = []
+right_foot_index = []
 video = cv2.VideoCapture(path)
 
 fps = 240
 
 ## Setup mediapipe instance
-with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detection_confidence = 0.5, min_tracking_confidence = 0.5, model_complexity = 2) as pose:
+with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detection_confidence = 0.4, min_tracking_confidence = 0.7, model_complexity = 2) as pose:
     while video.isOpened():
-            i = i +1
             ret, frame = video.read()
+            
             if(ret):
                  
                 # Recolor image to RGB
@@ -74,15 +81,12 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                 
                 if(results.pose_landmarks != None):
                     landmarks = results.pose_landmarks.landmark
-                    right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
-                    right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y]
-                    right_knee = [landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y]
-                    right_ankle = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
-                    right_foot_index = [landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y]
+                    right_shoulder.append([landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y])
+                    right_hip.append( [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y])
+                    right_knee.append([landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y])
+                    right_ankle.append([landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y])
+                    right_foot_index.append([landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y])
                     
-                    angle_A.append(angles_calc(right_shoulder, right_hip, right_knee))
-                    angle_B.append(angles_calc(right_hip, right_knee, right_ankle))
-                    angle_C.append(angles_calc(right_foot_index, right_ankle, right_knee))
                     
                     '''print('Frame:',i)
                     print('Right Shoulder:',right_shoulder)
@@ -110,13 +114,43 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                  
             else:
                  break
-          
+            i = i +1
+
            
 # Release webcam
 video.release()
 
 # Close windows
 cv2.destroyAllWindows()
+
+t = np.arange(1, len(right_ankle) + 1, step = 1 )
+
+
+plt.plot(t, right_ankle[:,0], color = 'black', label='Cadera')
+
+
+
+plt.xlabel("Frame")
+plt.ylabel("Ankle sin filtrar")
+plt.legend()
+
+plt.grid()
+
+plt.show()
+
+
+
+right_shoulder[:,0] = savgol_filter(right_shoulder[:,0], window_length=20, polyorder=1)
+right_hip[:,0] = savgol_filter(right_hip[:,0], window_length=20, polyorder=1)
+right_knee[:,0] = savgol_filter(right_knee[:,0], window_length=20, polyorder=1)
+right_ankle[:,0] = savgol_filter(right_ankle[:,0], window_length=20, polyorder=1)
+right_foot_index[:,0] = savgol_filter(right_foot_index[:,0], window_length=20, polyorder=1)
+for i in range(0,len(right_shoulder)):
+     
+    angle_A.append( angles_calc(right_shoulder[i], right_hip[i], right_knee[i]))
+    angle_B.append(angles_calc(right_hip[i], right_knee[i], right_ankle[i]))
+    angle_C.append(angles_calc(right_foot_index[i], right_ankle[i], right_knee[i]))
+                    
 
 '''
 angle_A1 = savgol_filter(angle_A, window_length=10, polyorder=1)
@@ -143,9 +177,25 @@ vel_angle_B1 = savgol_filter(vel_angle_B1, window_length=20, polyorder=2)
 vel_angle_C1 = savgol_filter(vel_angle_C1, window_length=20, polyorder=2)
 '''
 
-vel_angle_A = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
-vel_angle_B = savgol_filter(vel_angle_B, window_length=20, polyorder=1)
-vel_angle_C = savgol_filter(vel_angle_C, window_length=20, polyorder=1)
+
+t = np.arange(1, len(right_ankle[:,0]) + 1, step = 1 )
+
+
+plt.plot(t, right_ankle[:,0], color = 'black', label='Cadera')
+
+
+
+plt.xlabel("Frame")
+plt.ylabel("Ankle filtrado")
+plt.legend()
+
+plt.grid()
+
+plt.show()
+
+# = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
+#vel_angle_B = savgol_filter(vel_angle_B, window_length=20, polyorder=1)
+#vel_angle_C = savgol_filter(vel_angle_C, window_length=20, polyorder=1)
 
 
 t = np.arange(1, len(angle_A) + 1, step = 1 )
@@ -167,13 +217,17 @@ plt.show()
 
 t = np.arange(1, len(vel_angle_C) + 1, step = 1 )
 
+
+
 plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
 plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
 #plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
-
-'''plt.plot(t, vel_angle_A1, color = 'blue', label='Cadera')
+'''
+plt.plot(t, vel_angle_A1, color = 'blue', label='Cadera')
 plt.plot(t, vel_angle_B1, color = 'blue', label='Rodilla')
 '''
+
+
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()

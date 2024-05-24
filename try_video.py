@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
+path = 'Videos Bruno\\Bruno 10.mp4' 
 #path = 'Videos Bruno\\bruno_45grad_cortado.mp4' 
 
 #NO FUNCIONAN:
@@ -120,6 +120,7 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
             
             if(results.pose_landmarks != None):
                 landmarks = results.pose_landmarks.landmark
+                '''
                 right_shoulder = [landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y]
                 right_hip = [landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y]
                 right_knee = [landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x,-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y]
@@ -130,7 +131,7 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                 angle_B.append(angles_calc(right_hip, right_knee, right_ankle))
                 angle_C.append(angles_calc(right_foot_index, right_ankle, right_knee))
 
-               
+               '''
                 '''
                 print('Frame:',i)
                 print('Right Shoulder:',right_shoulder)
@@ -139,9 +140,10 @@ with mp_pose.Pose(static_image_mode = False, smooth_landmarks = True, min_detect
                 print('Right Ankle:',right_ankle)
                 print('Right Foot:',right_foot_index)
                 '''
-                
+                '''
                 x = [right_shoulder[0], right_hip[0], right_knee[0], right_ankle[0], right_foot_index[0]]
                 y = [-right_shoulder[1], -right_hip[1], -right_knee[1], -right_ankle[1], -right_foot_index[1]]
+                '''
                 '''plt.scatter(x, y, color = 'black')
                 plt.gca().set_aspect(aspect = 9/16, adjustable=None, anchor=None, share=False)
                 plt.show()'''
