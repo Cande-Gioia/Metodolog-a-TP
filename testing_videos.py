@@ -180,10 +180,14 @@ def get_vel_angular( angle_A, angle_B, angle_C, fps):
 
 
 
-
+def score_calculation(map_to_half, distance):
+    score = 100 - distance* (50/map_to_half)
+    if(score < 0 ):
+        score = 0
+    return score
 
 path_1 = 'Videos Bruno\\Bruno 3m0.mp4'
-path_2 = 'Videos Bruno\\Bruno -3m67_5.mp4'
+path_2 = 'Videos Bruno\\Bruno 3m67_5.mp4'
 angle_A_1, angle_B_1, angle_C_1 = get_points(path_1)
 angle_A_2, angle_B_2, angle_C_2 = get_points(path_2)
 
@@ -201,6 +205,8 @@ dist_vel_angle_B= dtw.distance(vel_angle_B_1,vel_angle_B_2)
 dist_vel_angle_C= dtw.distance(vel_angle_C_1,vel_angle_C_2)
 
 
+scores = [score_calculation(300,dist_angle_A), score_calculation(300,dist_angle_B), score_calculation(300,dist_angle_C), 
+          score_calculation(3000,dist_vel_angle_A),  score_calculation(3000,dist_vel_angle_B),  score_calculation(3000,dist_vel_angle_C)]
 
 
 
@@ -212,7 +218,7 @@ print(dist_vel_angle_B)
 print(dist_vel_angle_C)
 
 
-
+print(scores)
 t = np.arange(1, len(angle_A_1) + 1, step = 1 )
 
 plt.plot(t, angle_A_1, color = 'black', label='Ángulo de Cadera 1')
