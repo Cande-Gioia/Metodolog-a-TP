@@ -4,8 +4,9 @@ import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
+import dtw
 
-path = 'Videos Bruno\\Bruno 9m.mp4'
+path = 'Videos Bruno\\Bruno 3m0.mp4'
 
 # Point1 es el de izquierda 
 # Point 2 es el de derecho
@@ -154,16 +155,16 @@ plt.show()
 
 
 
-right_shoulder_x = savgol_filter(right_shoulder_x, window_length=10, polyorder=1)
-right_shoulder_y = savgol_filter(right_shoulder_y, window_length=10, polyorder=1)
-right_hip_x = savgol_filter(right_hip_x, window_length=10, polyorder=1)
-right_hip_y = savgol_filter(right_hip_y, window_length=10, polyorder=1) 
-right_ankle_x = savgol_filter(right_ankle_x, window_length=10, polyorder=1) 
-right_ankle_y = savgol_filter(right_ankle_y, window_length=10, polyorder=1) 
-right_knee_x = savgol_filter(right_knee_x, window_length=10, polyorder=1) 
-right_knee_y = savgol_filter(right_knee_y, window_length=10, polyorder=1) 
-right_foot_index_x = savgol_filter(right_foot_index_x, window_length=10, polyorder=1) 
-right_foot_index_y = savgol_filter(right_foot_index_y, window_length=10, polyorder=1) 
+right_shoulder_x = savgol_filter(right_shoulder_x, window_length=20, polyorder=1)
+right_shoulder_y = savgol_filter(right_shoulder_y, window_length=20, polyorder=1)
+right_hip_x = savgol_filter(right_hip_x, window_length=20, polyorder=1)
+right_hip_y = savgol_filter(right_hip_y, window_length=20, polyorder=1) 
+right_ankle_x = savgol_filter(right_ankle_x, window_length=20, polyorder=1) 
+right_ankle_y = savgol_filter(right_ankle_y, window_length=20, polyorder=1) 
+right_knee_x = savgol_filter(right_knee_x, window_length=20, polyorder=1) 
+right_knee_y = savgol_filter(right_knee_y, window_length=20, polyorder=1) 
+right_foot_index_x = savgol_filter(right_foot_index_x, window_length=20, polyorder=1) 
+right_foot_index_y = savgol_filter(right_foot_index_y, window_length=20, polyorder=1) 
 
 for i in range(0,len(right_shoulder_x)):
      
@@ -173,9 +174,9 @@ for i in range(0,len(right_shoulder_x)):
                     
 
 
-angle_A = savgol_filter(angle_A, window_length=10, polyorder=1)
-angle_B = savgol_filter(angle_B, window_length=10, polyorder=1)
-angle_C = savgol_filter(angle_C, window_length=10, polyorder=1)
+angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
+angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
+angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
 
 
 vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
@@ -189,8 +190,10 @@ vel_angle_B = savgol_filter(vel_angle_B, window_length=20, polyorder=1)
 vel_angle_C = savgol_filter(vel_angle_C, window_length=20, polyorder=1)
 
 
+manhattan_distance = lambda vel_angle_A, vel_angle_B: np.abs(vel_angle_A - vel_angle_B)
 
-
+d, cost_matrix, acc_cost_matrix, path = dtw.dtw(vel_angle_A, vel_angle_B, dist=manhattan_distance)
+print(path)
 t = np.arange(0, len(right_ankle_x) , step = 1 )
 
 
@@ -211,9 +214,9 @@ plt.show()
 
 t = np.arange(1, len(angle_A) + 1, step = 1 )
 
-plt.plot(t, angle_A, color = 'black', label='Cadera')
-plt.plot(t, angle_B, color = 'red', label='Rodilla')
-
+plt.plot(t, angle_A, color = 'black', label='Ángulo de Cadera')
+plt.plot(t, angle_B, color = 'red', label=' Ángulo de Rodilla')
+plt.plot(t, angle_C, color = 'blue', label=' Ángulo de Tobillo')
 plt.xlabel("Frame")
 plt.ylabel("Ángulo [°]")
 plt.legend()
@@ -227,16 +230,13 @@ t = np.arange(1, len(vel_angle_C) + 1, step = 1 )
 
 
 plt.plot(t, vel_angle_A, color = 'black', label='Cadera')
-plt.plot(t, vel_angle_B, color = 'blue', label='Rodilla')
-#plt.plot(t, vel_angle_C, color = 'red', label="Tobillo")
-'''
-plt.plot(t, vel_angle_A1, color = 'blue', label='Cadera')
-plt.plot(t, vel_angle_B1, color = 'blue', label='Rodilla')
-'''
+plt.plot(t, vel_angle_B, color = 'red', label='Rodilla')
+plt.plot(t, vel_angle_C, color = 'blue', label="Tobillo")
+
 
 
 plt.xlabel("Frame")
-plt.ylabel("Velocidad angular")
+plt.ylabel("Velocidad angular [°/s]")
 plt.legend()
 
 plt.grid()
