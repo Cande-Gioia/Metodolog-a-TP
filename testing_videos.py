@@ -4,8 +4,7 @@ import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
-from dtaidistance import dtw
-
+from dtaidistance import dtw, similarity
 
 
 # Point1 es el de izquierda 
@@ -151,6 +150,8 @@ def get_points(path):
     right_foot_index_x = savgol_filter(right_foot_index_x, window_length=20, polyorder=1) 
     right_foot_index_y = savgol_filter(right_foot_index_y, window_length=20, polyorder=1) 
 
+    
+
     for i in range(0,len(right_shoulder_x)):
         
         angle_A.append( angles_calc([right_shoulder_x[i], right_shoulder_y[i]], [right_hip_x[i],right_hip_y[i]],[right_knee_x[i], right_knee_y[i]]))
@@ -163,7 +164,7 @@ def get_points(path):
     angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
     angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
 
-    return angle_A, angle_B, angle_C
+    return angle_A, angle_B, angle_C, np.argmin(right_foot_index_y)
 
 
 
@@ -180,45 +181,173 @@ def get_vel_angular( angle_A, angle_B, angle_C, fps):
 
 
 
-def score_calculation(map_to_half, distance):
-    score = 100 - distance* (50/map_to_half)
+def score_calculation(all_number, porcen):
+    score = porcen*100/all_number
     if(score < 0 ):
         score = 0
     return score
 
 path_1 = 'Videos Bruno\\Bruno 3m0.mp4'
 path_2 = 'Videos Bruno\\Bruno 3m67_5.mp4'
-angle_A_1, angle_B_1, angle_C_1 = get_points(path_1)
-angle_A_2, angle_B_2, angle_C_2 = get_points(path_2)
-
-
+angle_A_1, angle_B_1, angle_C_1, index_min_foot_1= get_points(path_1)
+angle_A_2, angle_B_2, angle_C_2, index_min_foot_2 =  get_points(path_2)
 vel_angle_A_1, vel_angle_B_1, vel_angle_C_1 =  get_vel_angular( angle_A_1, angle_B_1, angle_C_1, 240)
 vel_angle_A_2, vel_angle_B_2, vel_angle_C_2 =  get_vel_angular( angle_A_2, angle_B_2, angle_C_2, 240)
 
 
-dist_angle_A= dtw.distance(angle_A_1,angle_A_2)
-dist_angle_B= dtw.distance(angle_B_1,angle_B_2)
-dist_angle_C= dtw.distance(angle_C_1,angle_C_2)
-
-dist_vel_angle_A = dtw.distance(vel_angle_A_1,vel_angle_A_2)
-dist_vel_angle_B= dtw.distance(vel_angle_B_1,vel_angle_B_2)
-dist_vel_angle_C= dtw.distance(vel_angle_C_1,vel_angle_C_2)
 
 
-scores = [score_calculation(300,dist_angle_A), score_calculation(300,dist_angle_B), score_calculation(300,dist_angle_C), 
-          score_calculation(3000,dist_vel_angle_A),  score_calculation(3000,dist_vel_angle_B),  score_calculation(3000,dist_vel_angle_C)]
+#Separación de etapas
+angle_A_1_first = angle_A_1[:index_min_foot_1]
+angle_A_1_second= angle_A_1[index_min_foot_1:]
+angle_A_2_first = angle_A_2[:index_min_foot_2]
+angle_A_2_second = angle_A_2[index_min_foot_2:]
+angle_B_1_first = angle_B_1[:index_min_foot_1]
+angle_B_1_second=angle_B_1[index_min_foot_1:]
+angle_B_2_first= angle_B_2[:index_min_foot_2]
+angle_B_2_second= angle_B_2[index_min_foot_2:]
+angle_C_1_first = angle_C_1[:index_min_foot_1]
+angle_C_1_second=angle_C_1[index_min_foot_1:]
+angle_C_2_first= angle_C_2[:index_min_foot_2]
+angle_C_2_second=  angle_C_2[index_min_foot_2:]
+
+
+vel_angle_A_1_first = vel_angle_A_1[:index_min_foot_1]
+vel_angle_A_1_second=  vel_angle_A_1[index_min_foot_1:]
+vel_angle_A_2_first = vel_angle_A_2[:index_min_foot_2]
+vel_angle_A_2_second = vel_angle_A_2[index_min_foot_2:]
+vel_angle_B_1_first = vel_angle_B_1[:index_min_foot_1]
+vel_angle_B_1_second =vel_angle_B_1[index_min_foot_1:]
+vel_angle_B_2_first =vel_angle_B_2[:index_min_foot_2]
+vel_angle_B_2_second= vel_angle_B_2[index_min_foot_2:]
+vel_angle_C_1_first = vel_angle_C_1[:index_min_foot_1]
+vel_angle_C_1_second=vel_angle_C_1[index_min_foot_1:]
+vel_angle_C_2_first = vel_angle_C_2[:index_min_foot_2]
+vel_angle_C_2_second= vel_angle_C_2[index_min_foot_2:]
+
+
+#Primera etapa
+min_angle_A_1_first = np.min(angle_A_1_first)
+min_angle_A_2_first = np.min(angle_A_2_first)
+min_angle_B_1_first = np.min(angle_B_1_first)
+min_angle_B_2_first = np.min(angle_B_2_first)
+min_angle_C_1_first = np.min(angle_C_1_first)
+min_angle_C_2_first = np.min(angle_C_2_first)
+max_vel_angle_A_1_first = np.max(vel_angle_A_1_first)
+max_vel_angle_A_2_first = np.max(vel_angle_A_2_first)
+max_vel_angle_B_1_first = np.max(vel_angle_B_1_first)
+max_vel_angle_B_2_first = np.max(vel_angle_B_2_first)
+max_vel_angle_C_1_first = np.max(vel_angle_C_1_first)
+max_vel_angle_C_2_first = np.max(vel_angle_C_2_first)
+
+#Segunda etapa
+
+max_angle_A_1_second = np.max(angle_A_1_second)
+max_angle_A_2_second= np.max(angle_A_2_second)
+max_angle_B_1_second = np.max(angle_B_1_second)
+max_angle_B_2_second = np.max(angle_B_2_second)
+max_angle_C_1_second = np.max(angle_C_1_second)
+max_angle_C_2_second = np.max(angle_C_2_second)
+max_vel_angle_A_1_second = np.max(vel_angle_A_1_second)
+max_vel_angle_A_2_second = np.max(vel_angle_A_2_second)
+max_vel_angle_B_1_second = np.max(vel_angle_B_1_second)
+max_vel_angle_B_2_second = np.max(vel_angle_B_2_second)
+max_vel_angle_C_1_second= np.max(vel_angle_C_1_second)
+max_vel_angle_C_2_second= np.max(vel_angle_C_2_second)
 
 
 
-print(dist_angle_A)
-print(dist_angle_B)
-print(dist_angle_C)
-print(dist_vel_angle_A)
-print(dist_vel_angle_B)
-print(dist_vel_angle_C)
+
+#obtengo scores
+
+socre_angle_A_first = score_calculation(min_angle_A_1_first,min_angle_A_2_first)
+socre_angle_B_first = score_calculation(min_angle_B_1_first,min_angle_B_2_first)
+socre_angle_C_first = score_calculation(min_angle_C_1_first,min_angle_C_2_first)
+
+socre_angle_A_second = score_calculation(max_angle_A_1_second,max_angle_A_2_second)
+socre_angle_B_second = score_calculation(max_angle_B_1_second,max_angle_B_2_second)
+socre_angle_C_second = score_calculation(max_angle_C_1_second,max_angle_C_2_second)
 
 
-print(scores)
+socre_vel_angle_A_first = score_calculation(max_vel_angle_A_1_first,max_vel_angle_A_2_first)
+socre_vel_angle_B_first = score_calculation(max_vel_angle_B_1_first,max_vel_angle_B_2_first)
+socre_vel_angle_C_first = score_calculation(max_vel_angle_C_1_first,max_vel_angle_C_2_first)
+
+socre_vel_angle_A_second = score_calculation(max_vel_angle_A_1_second,max_vel_angle_A_2_second)
+socre_vel_angle_B_second = score_calculation(max_vel_angle_B_1_second,max_vel_angle_B_2_second)
+socre_vel_angle_C_second = score_calculation(max_vel_angle_C_1_second,max_vel_angle_C_2_second)
+
+
+
+print(socre_angle_A_first)
+print(socre_angle_B_first) 
+print(socre_angle_C_first)
+
+print(socre_angle_A_second )
+print(socre_angle_B_second) 
+print(socre_angle_C_second )
+
+
+print(socre_vel_angle_A_first )
+print(socre_vel_angle_B_first) 
+print(socre_vel_angle_C_first) 
+
+print(socre_vel_angle_A_second) 
+print(socre_vel_angle_B_second )
+print(socre_vel_angle_C_second) 
+
+
+# dist_angle_A= dtw.distance(angle_A_1,angle_A_2)
+# dist_angle_B= dtw.distance(angle_B_1,angle_B_2)
+# dist_angle_C= dtw.distance(angle_C_1,angle_C_2)
+
+
+# dist_vel_angle_A = dtw.distance(vel_angle_A_1,vel_angle_A_2)
+# dist_vel_angle_B= dtw.distance(vel_angle_B_1,vel_angle_B_2)
+# dist_vel_angle_C= dtw.distance(vel_angle_C_1,vel_angle_C_2)
+
+
+# #scores = [score_calculation(300,dist_angle_A), score_calculation(300,dist_angle_B), score_calculation(300,dist_angle_C), 
+#           #score_calculation(3000,dist_vel_angle_A),  score_calculation(3000,dist_vel_angle_B),  score_calculation(3000,dist_vel_angle_C)]
+
+
+# print(dist_angle_A)
+# print(dist_angle_B)
+# print(dist_angle_C)
+# print(dist_vel_angle_A)
+# print(dist_vel_angle_B)
+# print(dist_vel_angle_C)
+
+
+# dist_angle_A_aux= dtw.distance(angle_A_1,angle_A_2)/len( dtw.warping_path(angle_A_1,angle_A_2))
+
+# dist_angle_A = dist_angle_A_aux/(np.sqrt(np.mean(np.square(angle_A_1))))*10
+# dist_angle_B_aux= dtw.distance(angle_B_1,angle_B_2)/len( dtw.warping_path(angle_B_1,angle_B_2))
+# dist_angle_B = dist_angle_B_aux/(np.sqrt(np.mean(np.square(angle_B_1))))*10
+
+# dist_angle_C_aux= dtw.distance(angle_C_1,angle_C_2)/len( dtw.warping_path(angle_C_1,angle_C_2))
+# dist_angle_C = dist_angle_C_aux/(np.sqrt(np.mean(np.square(angle_C_1))))*10
+
+# dist_vel_angle_A = dtw.distance(vel_angle_A_1,vel_angle_A_2)/len( dtw.warping_path(vel_angle_A_1,vel_angle_A_2)) * 1/(np.sqrt(np.mean(np.square(vel_angle_A_1))))*10
+# dist_vel_angle_B= dtw.distance(vel_angle_B_1,vel_angle_B_2)/len( dtw.warping_path(vel_angle_B_1,vel_angle_B_2)) * 1/(np.sqrt(np.mean(np.square(vel_angle_B_1))))*10
+# dist_vel_angle_C= dtw.distance(vel_angle_C_1,vel_angle_C_2)/len( dtw.warping_path(vel_angle_C_1,vel_angle_C_2)) * 1/(np.sqrt(np.mean(np.square(vel_angle_C_1))))*10
+
+
+#print(scores)
+
+
+# print(dist_angle_A)
+# print(dist_angle_B)
+# print(dist_angle_C)
+# print(dist_vel_angle_A)
+# print(dist_vel_angle_B)
+# print(dist_vel_angle_C)
+
+
+
+
+print(len(angle_A_1))
+print(len(vel_angle_A_1))
 t = np.arange(1, len(angle_A_1) + 1, step = 1 )
 
 plt.plot(t, angle_A_1, color = 'black', label='Ángulo de Cadera 1')
