@@ -266,7 +266,7 @@ if __name__ == "__main__":
     path_1 = 'Videos Bruno\\Bruno 3m0.mp4'
 
     # Path del video a contrastar
-    path_2 = 'Videos Bruno\\Bruno 3m22_5.mp4'
+    path_2 = 'Videos Bruno\\Bruno 3m45.mp4'
 
     # Cálculo de los ángulos
     angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1)
