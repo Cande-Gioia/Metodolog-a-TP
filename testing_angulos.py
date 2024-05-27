@@ -1,51 +1,13 @@
 """
-try_videos.py
+testing_videos.py
 
-En este archivo, se analizan los videos de los jugadores profesionales.
+En este archivo, se analizan diferencias entre videos de testeo, para medir la eficiencia de variables como:
+- La distancia de la cámara al usuario en la detección de la red
+- La calidad de la imagen en la detección de la red
+- El ángulo de la toma hacia el usuario
+- El tiempo de cálculo
 
 """
-
-import os 
-import cv2
-import mediapipe as mp
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.signal import savgol_filter
-
-path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
-
-#NO FUNCIONAN:
-'''
-barcelona 1
-barcelona 2
-barcelona 3
-real madrid 1
-real madrid 7
-real madrid 9
-juninho ( va tan lento que un momento se rompe)
-
-'''
-#FUNCIONAN EN TIEMPO DADO:
-'''
-real madrid 2 (agarra al final al estatua)
-real madrid 4 (al principio y al final se rompe)
-real madrid 6 (al final)
-real madrid 8 (al comienzo)
-real madrid 10 (al comienzo y al final)
-Kevin De Bruyne (al principio CORTARLO DE NUEVO)
-Cristiano Ronaldo 1 (al principio no hay luz y después va re lento, se vuelve a romper)
-'''
-
-#FUNCIONAN:
-'''
-real madrid 5
-real madrid 11
-riquelme-recorte
-cristiano 2
-inker 
-Beckham
-'''
-
 import os 
 import cv2
 import mediapipe as mp
@@ -301,91 +263,139 @@ def score_calculation(all_number, porcen):
 if __name__ == "__main__":
 
     # Path del video de referencia
-    path_1 = "Videos Jugadores Profesionales\CR7_cortado.mp4"
+    path_1 = 'Videos Bruno\\Bruno 3m0.mp4'
+
+    # Path del video a contrastar
+    path_2 = 'Videos Bruno\\Bruno 3m67_5.mp4'
 
     # Cálculo de los ángulos
     angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1)
+
+    angle_A_2, angle_B_2, angle_C_2, shoot_frame_2 =  process_Video(path_2)
 
     # Cálculo de las velocidades angulares
     vel_angle_A_1 = get_vel_angular(angle_A_1, 240)
     vel_angle_B_1 = get_vel_angular(angle_B_1, 240)
     vel_angle_C_1 =  get_vel_angular(angle_C_1, 240)
 
+    vel_angle_A_2 = get_vel_angular(angle_A_2, 240)
+    vel_angle_B_2 = get_vel_angular(angle_B_2, 240)
+    vel_angle_C_2 =  get_vel_angular(angle_C_2, 240)
 
     # Separación en etapa 1 (antes del disparo) y etapa 2 (después del disparo)
     angle_A_1_first = angle_A_1[:shoot_frame_1]
     angle_A_1_second = angle_A_1[shoot_frame_1:]
 
+    angle_A_2_first = angle_A_2[:shoot_frame_2]
+    angle_A_2_second = angle_A_2[shoot_frame_2:]
+
     angle_B_1_first = angle_B_1[:shoot_frame_1]
     angle_B_1_second = angle_B_1[shoot_frame_1:]
+
+    angle_B_2_first = angle_B_2[:shoot_frame_2]
+    angle_B_2_second = angle_B_2[shoot_frame_2:]
 
     angle_C_1_first = angle_C_1[:shoot_frame_1]
     angle_C_1_second = angle_C_1[shoot_frame_1:]
 
+    angle_C_2_first = angle_C_2[:shoot_frame_2]
+    angle_C_2_second = angle_C_2[shoot_frame_2:]
+
+
     vel_angle_A_1_first = vel_angle_A_1[:shoot_frame_1]
     vel_angle_A_1_second = vel_angle_A_1[shoot_frame_1:]
+
+    vel_angle_A_2_first = vel_angle_A_2[:shoot_frame_2]
+    vel_angle_A_2_second = vel_angle_A_2[shoot_frame_2:]
 
     vel_angle_B_1_first = vel_angle_B_1[:shoot_frame_1]
     vel_angle_B_1_second = vel_angle_B_1[shoot_frame_1:]
 
+    vel_angle_B_2_first = vel_angle_B_2[:shoot_frame_2]
+    vel_angle_B_2_second = vel_angle_B_2[shoot_frame_2:]
+
     vel_angle_C_1_first = vel_angle_C_1[:shoot_frame_1]
     vel_angle_C_1_second = vel_angle_C_1[shoot_frame_1:]
 
-
+    vel_angle_C_2_first = vel_angle_C_2[:shoot_frame_2]
+    vel_angle_C_2_second = vel_angle_C_2[shoot_frame_2:]
 
     # Primera Etapa:
     #   Se analizan los valores de los ángulos y velocidades angulares máximas
     min_angle_A_1_first = np.min(angle_A_1_first)
+    min_angle_A_2_first = np.min(angle_A_2_first)
     min_angle_B_1_first = np.min(angle_B_1_first)
+    min_angle_B_2_first = np.min(angle_B_2_first)
     max_angle_C_1_first = np.max(angle_C_1_first)
+    max_angle_C_2_first = np.max(angle_C_2_first)
 
     max_vel_angle_A_1_first = np.max(vel_angle_A_1_first)
+    max_vel_angle_A_2_first = np.max(vel_angle_A_2_first)
     max_vel_angle_B_1_first = np.max(vel_angle_B_1_first)
+    max_vel_angle_B_2_first = np.max(vel_angle_B_2_first)
     max_vel_angle_C_1_first = np.min(vel_angle_C_1_first)
+    max_vel_angle_C_2_first = np.min(vel_angle_C_2_first)
 
     # Segunda etapa:
     #   Se analizan los valores de los ángulos y velocidades angulares máximas
     max_angle_A_1_second = np.max(angle_A_1_second)
+    max_angle_A_2_second = np.max(angle_A_2_second)
     max_angle_B_1_second = np.max(angle_B_1_second)
+    max_angle_B_2_second = np.max(angle_B_2_second)
     min_angle_C_1_second = np.min(angle_C_1_second)
+    min_angle_C_2_second = np.min(angle_C_2_second)
 
     max_vel_angle_A_1_second = np.max(vel_angle_A_1_second)
+    max_vel_angle_A_2_second = np.max(vel_angle_A_2_second)
     max_vel_angle_B_1_second = np.max(vel_angle_B_1_second)
+    max_vel_angle_B_2_second = np.max(vel_angle_B_2_second)
     max_vel_angle_C_1_second = np.min(vel_angle_C_1_second)
+    max_vel_angle_C_2_second = np.min(vel_angle_C_2_second)
 
-    array = [min_angle_A_1_first,
-            min_angle_B_1_first,
-            max_angle_C_1_first,
+    # Se calcula la diferencia entre ángulos para ver cuánto es el error
+    angle_A_first_diference = abs(min_angle_A_1_first - min_angle_A_2_first)
+    angle_B_first_diference = abs(min_angle_B_1_first - min_angle_B_2_first)
+    angle_C_first_diference = abs(max_angle_C_1_first - max_angle_C_2_first)
 
-            max_vel_angle_A_1_first,
-            max_vel_angle_B_1_first,
-            max_vel_angle_C_1_first,
-            
-            max_angle_A_1_second,
-            max_angle_B_1_second,
-            min_angle_C_1_second,
+    angle_A_second_diference = abs(max_angle_A_1_second - max_angle_A_2_second)
+    angle_B_second_diference = abs(max_angle_B_1_second - max_angle_B_2_second)
+    angle_C_second_diference = abs(min_angle_C_1_second - min_angle_C_2_second)
 
-            max_vel_angle_A_1_second,
-            max_vel_angle_B_1_second,
-            max_vel_angle_C_1_second]
-    
-    print(array)
+    # Se calcula la diferencia entre velocidades angulares para ver cuánta es la diferencia
+    vel_angle_A_first_diference = abs(max_vel_angle_A_1_first - max_vel_angle_A_2_first)
+    vel_angle_B_first_diference = abs(max_vel_angle_B_1_first - max_vel_angle_B_2_first)
+    vel_angle_C_first_diference = abs(max_vel_angle_C_1_first - max_vel_angle_C_2_first)
 
+    vel_angle_A_second_diference = abs(max_vel_angle_A_1_second - max_vel_angle_A_2_second)
+    vel_angle_B_second_diference = abs(max_vel_angle_B_1_second - max_vel_angle_B_2_second)
+    vel_angle_C_second_diference = abs(max_vel_angle_C_1_second - max_vel_angle_C_2_second)
 
-    np.savez('Datos Cristiano Ronaldo tiempo.npz', angle_A_1 = angle_A_1, angle_B_1 = angle_B_1, angle_C_1 = angle_C_1, shoot_frame_1 = shoot_frame_1,
-                                            vel_angle_A_1 = vel_angle_A_1, vel_angle_B_1 = vel_angle_B_1, vel_angle_C_1 = vel_angle_C_1)
-    
-    np.savez('Datos Cristiano Ronaldo valores maximos y minimos.npz', min_angle_A_1_first = min_angle_A_1_first, 
-                                    min_angle_B_1_first =  min_angle_B_1_first, max_angle_C_1_first = max_angle_C_1_first,
-                                    max_vel_angle_A_1_first = max_vel_angle_A_1_first, max_vel_angle_B_1_first = max_vel_angle_B_1_first,
-                                    max_vel_angle_C_1_first = max_vel_angle_C_1_first, max_angle_A_1_second = max_angle_A_1_second,
-                                    max_angle_B_1_second = max_angle_B_1_second, min_angle_C_1_second = min_angle_C_1_second,
-                                    max_vel_angle_A_1_second = max_vel_angle_A_1_second, max_vel_angle_B_1_second = max_vel_angle_B_1_second,
-                                    max_vel_angle_C_1_second = max_vel_angle_C_1_second)
+    print("Etapa 1:")
+    print("Diferencia de ángulos:")
+    print("Cadera: ", angle_A_first_diference)
+    print("Rodilla: ", angle_B_first_diference) 
+    print("Tobillo: ", angle_C_first_diference)
 
-    # Gráficos en el tiempo
-    print(len(angle_A_1))
-    print(len(vel_angle_A_1))
+    print("Diferencia de velocidades angulares:")
+    print("Cadera: ", vel_angle_A_first_diference)
+    print("Rodilla: ", vel_angle_B_first_diference) 
+    print("Tobillo: ", vel_angle_C_first_diference) 
+
+    print("Etapa 2:")
+   
+    print("Diferencia de ángulos:")
+    print("Cadera: ", angle_A_second_diference)
+    print("Rodilla: ", angle_B_second_diference) 
+    print("Tobillo: ", angle_C_second_diference)
+
+    print("Diferencia de velocidades angulares:")
+    print("Cadera: ", vel_angle_A_second_diference)
+    print("Rodilla: ", vel_angle_B_second_diference) 
+    print("Tobillo: ", vel_angle_C_second_diference) 
+
+    print("Frame tiro video 1: ", shoot_frame_1)
+    print("Frame tiro video 2: ", shoot_frame_2)
+
 
     # Gráfico de los ángulos video 1
     t = np.arange(1, len(angle_A_1) + 1, step = 1 )
@@ -402,6 +412,22 @@ if __name__ == "__main__":
 
     plt.show()
 
+    # Gráfico de los ángulos video 2
+    t = np.arange(1, len(angle_A_2) + 1, step = 1 )
+
+    plt.plot(t, angle_A_2, color = 'black', label='Ángulo de Cadera 2')
+    plt.plot(t, angle_B_2, color = 'red', label=' Ángulo de Rodilla 2')
+    plt.plot(t, angle_C_2, color = 'blue', label=' Ángulo de Tobillo 2')
+    plt.axvline(x=shoot_frame_2, color='g', linestyle='--')
+
+    plt.xlabel("Frame")
+    plt.ylabel("Ángulo [°]")
+    plt.legend()
+
+    plt.grid()
+
+    plt.show()
+
     # Gráfico de las velocidades angulares video 1
     t = np.arange(1, len(vel_angle_A_1) + 1, step = 1 )
 
@@ -409,6 +435,23 @@ if __name__ == "__main__":
     plt.plot(t, vel_angle_B_1, color = 'red', label='Rodilla 1')
     plt.plot(t, vel_angle_C_1, color = 'blue', label="Tobillo 1")
     plt.axvline(x=shoot_frame_1-1, color='g', linestyle='--')
+
+    plt.xlabel("Frame")
+    plt.ylabel("Velocidad angular [°/s]")
+    plt.legend()
+
+    plt.grid()
+
+    plt.show()
+
+    # Gráfico de las velocidades angulares video 2
+    t = np.arange(1, len(vel_angle_A_2) + 1, step = 1 )
+
+    plt.plot(t, vel_angle_A_2, color = 'black', label='Cadera 2')
+    plt.plot(t, vel_angle_B_2, color = 'red', label='Rodilla 2')
+    plt.plot(t, vel_angle_C_2, color = 'blue', label="Tobillo 2")
+    plt.axvline(x=shoot_frame_2-1, color='g', linestyle='--')
+
 
     plt.xlabel("Frame")
     plt.ylabel("Velocidad angular [°/s]")
