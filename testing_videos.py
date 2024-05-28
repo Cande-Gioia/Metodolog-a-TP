@@ -266,7 +266,7 @@ if __name__ == "__main__":
     path_1 = 'Videos Bruno\\Bruno 3m0.mp4'
 
     # Path del video a contrastar
-    path_2 = 'Videos Bruno\\Bruno 3m45.mp4'
+    path_2 = 'Videos Bruno\\Bruno 3m0-144p.mp4'
 
     # Cálculo de los ángulos
     angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1)
@@ -404,10 +404,11 @@ if __name__ == "__main__":
     plt.plot(t, angle_B_1, color = 'red', label=' Ángulo de Rodilla 1')
     plt.plot(t, angle_C_1, color = 'blue', label=' Ángulo de Tobillo 1')
     plt.axvline(x=shoot_frame_1, color='g', linestyle='--')
-    plt.xlabel("Frame")
-    plt.ylabel("Ángulo [°]")
-    plt.legend()
-
+    plt.xlabel("Frame",fontsize=18,fontname='Times New Roman')
+    plt.ylabel("Ángulo [°]",fontsize=18,fontname='Times New Roman')
+    plt.xticks(fontname='Times New Roman', fontsize=18)
+    plt.yticks(fontname='Times New Roman', fontsize=18)
+    plt.legend(prop={'family': 'Times New Roman', 'size': 12})
     plt.grid()
 
     plt.show()
@@ -420,9 +421,12 @@ if __name__ == "__main__":
     plt.plot(t, angle_C_2, color = 'blue', label=' Ángulo de Tobillo 2')
     plt.axvline(x=shoot_frame_2, color='g', linestyle='--')
 
-    plt.xlabel("Frame")
-    plt.ylabel("Ángulo [°]")
-    plt.legend()
+    plt.xlabel("Frame",fontsize=18,fontname='Times New Roman')
+    plt.ylabel("Ángulo [°]",fontsize=18,fontname='Times New Roman')
+    plt.xticks(fontname='Times New Roman', fontsize=18)
+    plt.yticks(fontname='Times New Roman', fontsize=18)
+
+    plt.legend(prop={'family': 'Times New Roman', 'size': 12})
 
     plt.grid()
 
