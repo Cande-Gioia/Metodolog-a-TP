@@ -1,60 +1,17 @@
 """
-try_videos.py
+proces_videos.py
 
-En este archivo, se analizan los videos de los jugadores profesionales.
+En este archivo, se definen las funciones necesarias para 
+obtener los datos de los videos y comparar el tiro libre del usuario 
+con el del profecional
 
 """
-
 import os 
 import cv2
 import mediapipe as mp
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
-
-path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
-
-#NO FUNCIONAN:
-'''
-barcelona 1
-barcelona 2
-barcelona 3
-real madrid 1
-real madrid 7
-real madrid 9
-juninho ( va tan lento que un momento se rompe)
-
-'''
-#FUNCIONAN EN TIEMPO DADO:
-'''
-real madrid 2 (agarra al final al estatua)
-real madrid 4 (al principio y al final se rompe)
-real madrid 6 (al final)
-real madrid 8 (al comienzo)
-real madrid 10 (al comienzo y al final)
-Kevin De Bruyne (al principio CORTARLO DE NUEVO)
-Cristiano Ronaldo 1 (al principio no hay luz y después va re lento, se vuelve a romper)
-'''
-
-#FUNCIONAN:
-'''
-real madrid 5
-real madrid 11
-riquelme-recorte
-cristiano 2
-inker 
-Beckham
-'''
-
-import os 
-import cv2
-import mediapipe as mp
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.signal import savgol_filter
-from dtaidistance import dtw, similarity
-
-
 
 def angles_calc(point1, center, point2):
     """
@@ -93,7 +50,7 @@ def angles_calc(point1, center, point2):
     return angle_deg
 
 
-def process_Video(path):
+def process_Video(path, foot):
     """
     Analiza el video del path ingresado y devueve los ángulos de la Cadera, Rodilla y Tobillo
     por frame. Además, devuelve el frame en que se realiza el disparo.
@@ -287,30 +244,11 @@ def get_vel_angular(angle_A, fps):
 
     return vel_angle_A
 
-
-def score_calculation(all_number, porcen):
-    score = porcen * 100 / all_number
-    if(score < 0 ):
-        score = 0
-    return score
-
-###################################################################################
-#   Main Test
-#
-###################################################################################
-if __name__ == "__main__":
-
-    # Path del video de referencia
-    path_1 = "Videos Jugadores Profesionales\CR7_cortado.mp4"
-
-    # Cálculo de los ángulos
-    angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1)
-
+def process_angulos(angle_A_1, angle_B_1, angle_C_1, shoot_frame_1, fps):
     # Cálculo de las velocidades angulares
-    vel_angle_A_1 = get_vel_angular(angle_A_1, 240)
-    vel_angle_B_1 = get_vel_angular(angle_B_1, 240)
-    vel_angle_C_1 =  get_vel_angular(angle_C_1, 240)
-
+    vel_angle_A_1 = get_vel_angular(angle_A_1, fps)
+    vel_angle_B_1 = get_vel_angular(angle_B_1, fps)
+    vel_angle_C_1 =  get_vel_angular(angle_C_1, fps)
 
     # Separación en etapa 1 (antes del disparo) y etapa 2 (después del disparo)
     angle_A_1_first = angle_A_1[:shoot_frame_1]
@@ -330,8 +268,6 @@ if __name__ == "__main__":
 
     vel_angle_C_1_first = vel_angle_C_1[:shoot_frame_1]
     vel_angle_C_1_second = vel_angle_C_1[shoot_frame_1:]
-
-
 
     # Primera Etapa:
     #   Se analizan los valores de los ángulos y velocidades angulares máximas
@@ -369,52 +305,27 @@ if __name__ == "__main__":
             max_vel_angle_B_1_second,
             max_vel_angle_C_1_second]
     
-    print(array)
+    return array
 
 
-    np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo tiempo.npz', angle_A_1 = angle_A_1, angle_B_1 = angle_B_1, angle_C_1 = angle_C_1, shoot_frame_1 = shoot_frame_1,
-                                            vel_angle_A_1 = vel_angle_A_1, vel_angle_B_1 = vel_angle_B_1, vel_angle_C_1 = vel_angle_C_1)
+def comparar_user_con_prof(path_data_pro, data_user):
+    data = np.load(path_data_pro)
+    data_pro = data['datos_pro'] 
+    diferencias_user_pro = [] 
+    for i in range(0,len(data_user)):
+        diferencias_user_pro.append(data_pro[i] - data_user[i])
     
-    np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo valores maximos y minimos.npz', 
-            min_angle_A_1_first = min_angle_A_1_first, min_angle_B_1_first =  min_angle_B_1_first, max_angle_C_1_first = max_angle_C_1_first,
-            max_vel_angle_A_1_first = max_vel_angle_A_1_first, max_vel_angle_B_1_first = max_vel_angle_B_1_first, max_vel_angle_C_1_first = max_vel_angle_C_1_first, 
-            max_angle_A_1_second = max_angle_A_1_second, max_angle_B_1_second = max_angle_B_1_second, min_angle_C_1_second = min_angle_C_1_second,
-            max_vel_angle_A_1_second = max_vel_angle_A_1_second, max_vel_angle_B_1_second = max_vel_angle_B_1_second, max_vel_angle_C_1_second = max_vel_angle_C_1_second)
+    return diferencias_user_pro
 
-    #De este archivo, en el programa se obtienen datos de profesional
-    np.savez('Datos Jugadores Profesionales\Datos CR7.npz',datos_pro = array)
 
-    # Gráficos en el tiempo
-    print(len(angle_A_1))
-    print(len(vel_angle_A_1))
+def analizar_video(path, fps, foot):
+    #Obtener datos del video ingresado
+    user_angle_A, user_angle_B, user_angle_C, user_shoot_index = process_Video(path,foot)
 
-    # Gráfico de los ángulos video 1
-    t = np.arange(1, len(angle_A_1) + 1, step = 1 )
+    #Calcular maximos y minimos de angulos y velocidades angulares 
+    data = process_angulos(user_angle_A, user_angle_B, user_angle_C, user_shoot_index, fps)
 
-    plt.plot(t, angle_A_1, color = 'black', label='Ángulo de Cadera 1')
-    plt.plot(t, angle_B_1, color = 'red', label=' Ángulo de Rodilla 1')
-    plt.plot(t, angle_C_1, color = 'blue', label=' Ángulo de Tobillo 1')
-    plt.axvline(x=shoot_frame_1, color='g', linestyle='--')
-    plt.xlabel("Frame")
-    plt.ylabel("Ángulo [°]")
-    plt.legend()
+    #Comparar con jugador profesional 
+    diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz')
 
-    plt.grid()
-
-    plt.show()
-
-    # Gráfico de las velocidades angulares video 1
-    t = np.arange(1, len(vel_angle_A_1) + 1, step = 1 )
-
-    plt.plot(t, vel_angle_A_1, color = 'black', label='Cadera 1')
-    plt.plot(t, vel_angle_B_1, color = 'red', label='Rodilla 1')
-    plt.plot(t, vel_angle_C_1, color = 'blue', label="Tobillo 1")
-    plt.axvline(x=shoot_frame_1-1, color='g', linestyle='--')
-
-    plt.xlabel("Frame")
-    plt.ylabel("Velocidad angular [°/s]")
-    plt.legend()
-
-    plt.grid()
-
-    plt.show()
+    return diferencias_user_pro

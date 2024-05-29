@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 
 class Ui_MainWindow(object):
@@ -202,9 +203,8 @@ class Ui_MainWindow(object):
         self.label_vrpom.setText(_translate("MainWindow", "-"))
         self.label_vtpom.setText(_translate("MainWindow", "-"))
         self.pushButton_procesar.setText(_translate("MainWindow", "Procesar"))
-from PyQt5.QtMultimediaWidgets import QVideoWidget
 
-
+'''
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -213,3 +213,4 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+'''

@@ -1,4 +1,5 @@
 from TP_Metodologia_GUI import *
+from process_video import *
 import sys, os
 from PyQt5.QtWidgets import QApplication, QLabel, QBoxLayout, QMainWindow, QFileDialog, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QRadioButton, QInputDialog
 from PyQt5.QtCore import Qt, QUrl
@@ -78,6 +79,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         path = self.file_path
 
         #TODO ACA VA EL CODIGO DE LA RED
+        diferencias_user_pro = analizar_video(self.file_path, self.fps, self.jugador)
+        self.acpr = str(diferencias_user_pro[0])   #a: angulo c:cadera, r:rodilla, t:tobillo
+        self.arpr = str(diferencias_user_pro[1])   #pr: previo
+        self.atpr = str(diferencias_user_pro[2])   
+        self.vcpr = str(diferencias_user_pro[3])   #v: velocidad
+        self.vrpr = str(diferencias_user_pro[4])
+        self.vtpr = str(diferencias_user_pro[5])
+
+        self.acpo = str(diferencias_user_pro[6])   #po: posterior
+        self.arpo = str(diferencias_user_pro[7])
+        self.atpo = str(diferencias_user_pro[8])
+        self.vcpo = str(diferencias_user_pro[9])
+        self.vrpo = str(diferencias_user_pro[10])
+        self.vtpo = str(diferencias_user_pro[11])
 
         self.publishcorrections()
 
