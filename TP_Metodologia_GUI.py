@@ -9,7 +9,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtMultimediaWidgets import QVideoWidget
 
 
 class Ui_MainWindow(object):
@@ -44,6 +43,14 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.boxframe, 0, 0, 1, 4)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
+        self.label_resultados = QtWidgets.QLabel(self.centralwidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setUnderline(True)
+        font.setWeight(75)
+        self.label_resultados.setFont(font)
+        self.label_resultados.setObjectName("label_resultados")
+        self.verticalLayout.addWidget(self.label_resultados)
         self.label_acpr = QtWidgets.QLabel(self.centralwidget)
         self.label_acpr.setObjectName("label_acpr")
         self.verticalLayout.addWidget(self.label_acpr)
@@ -62,6 +69,14 @@ class Ui_MainWindow(object):
         self.label_vtpr = QtWidgets.QLabel(self.centralwidget)
         self.label_vtpr.setObjectName("label_vtpr")
         self.verticalLayout.addWidget(self.label_vtpr)
+        self.line = QtWidgets.QFrame(self.centralwidget)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.line.setFont(font)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line.setObjectName("line")
+        self.verticalLayout.addWidget(self.line)
         self.label_acpo = QtWidgets.QLabel(self.centralwidget)
         self.label_acpo.setObjectName("label_acpo")
         self.verticalLayout.addWidget(self.label_acpo)
@@ -104,6 +119,9 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.pushButton_play, 2, 2, 1, 1)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.label_vacia = QtWidgets.QLabel(self.centralwidget)
+        self.label_vacia.setObjectName("label_vacia")
+        self.verticalLayout_2.addWidget(self.label_vacia)
         self.label_acprm = QtWidgets.QLabel(self.centralwidget)
         self.label_acprm.setAlignment(QtCore.Qt.AlignCenter)
         self.label_acprm.setObjectName("label_acprm")
@@ -128,6 +146,11 @@ class Ui_MainWindow(object):
         self.label_vtprm.setAlignment(QtCore.Qt.AlignCenter)
         self.label_vtprm.setObjectName("label_vtprm")
         self.verticalLayout_2.addWidget(self.label_vtprm)
+        self.line_2 = QtWidgets.QFrame(self.centralwidget)
+        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_2.setObjectName("line_2")
+        self.verticalLayout_2.addWidget(self.line_2)
         self.label_acpom = QtWidgets.QLabel(self.centralwidget)
         self.label_acpom.setAlignment(QtCore.Qt.AlignCenter)
         self.label_acpom.setObjectName("label_acpom")
@@ -167,6 +190,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.label_arrastre.setText(_translate("MainWindow", "Arrastre un video para procesar  "))
+        self.label_resultados.setText(_translate("MainWindow", "Resultados"))
         self.label_acpr.setText(_translate("MainWindow", "Ángulo cadera previo"))
         self.label_arpr.setText(_translate("MainWindow", "Ángulo rodilla previo"))
         self.label_atpr.setText(_translate("MainWindow", "Ángulo tobillo previo"))
@@ -190,6 +214,7 @@ class Ui_MainWindow(object):
         self.comboBox_FPS.setItemText(2, _translate("MainWindow", "240"))
         self.comboBox_FPS.setItemText(3, _translate("MainWindow", "360"))
         self.pushButton_play.setText(_translate("MainWindow", "Play"))
+        self.label_vacia.setText(_translate("MainWindow", " "))
         self.label_acprm.setText(_translate("MainWindow", "-"))
         self.label_arprm.setText(_translate("MainWindow", "-"))
         self.label_atprm.setText(_translate("MainWindow", "-"))
@@ -203,8 +228,9 @@ class Ui_MainWindow(object):
         self.label_vrpom.setText(_translate("MainWindow", "-"))
         self.label_vtpom.setText(_translate("MainWindow", "-"))
         self.pushButton_procesar.setText(_translate("MainWindow", "Procesar"))
+from PyQt5.QtMultimediaWidgets import QVideoWidget
 
-'''
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
@@ -213,4 +239,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-'''
