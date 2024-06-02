@@ -50,7 +50,7 @@ def angles_calc(point1, center, point2):
     return angle_deg
 
 
-def process_Video(path, foot):
+def process_Video(path, zurdo):
     """
     Analiza el video del path ingresado y devueve los ángulos de la Cadera, Rodilla y Tobillo
     por frame. Además, devuelve el frame en que se realiza el disparo.
@@ -59,6 +59,8 @@ def process_Video(path, foot):
     ----------
     path : string
         Path del video a analizar
+    zurdo : bool
+        False si es derecho, True si es zurdo
 
     Retorna
     ----------
@@ -114,6 +116,10 @@ def process_Video(path, foot):
         
         while video.isOpened():
             ret, frame = video.read()
+
+            # Si es zurdo, invertir la imagen
+            if zurdo:
+                frame = cv2.flip(frame, 1)
             
             if(ret):
                 
@@ -134,7 +140,7 @@ def process_Video(path, foot):
                                     mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
                                     )          
 
-                window_name = 'Procesamiento de imágenes'
+                window_name = 'Procesamiento de imagenes'
                 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
                 cv2.resizeWindow(window_name, 800, 600)
@@ -144,47 +150,28 @@ def process_Video(path, foot):
                 
                 if(results.pose_landmarks != None):
                     landmarks = results.pose_landmarks.landmark
+                    
+                    # Se almacenan los puntos
+                    shoulder_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x)
+                    shoulder_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y)
 
-                    # Se almacenan los puntos segun diestro o zurdo
-                    if(foot == 0):
-                        shoulder_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x)
-                        shoulder_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y)
+                    hip_x.append( landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x)
+                    hip_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y)
 
-                        hip_x.append( landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x)
-                        hip_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y)
+                    knee_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x)
+                    knee_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y)
 
-                        knee_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x)
-                        knee_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y)
+                    ankle_1_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
+                    ankle_1_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
 
-                        ankle_1_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
-                        ankle_1_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
+                    foot_index_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x)
+                    foot_index_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y)
 
-                        foot_index_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x)
-                        foot_index_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y)
-
-                        ankle_2_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
-                        ankle_2_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
-                    else:
-                        shoulder_x.append(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x)
-                        shoulder_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y)
-
-                        hip_x.append( landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x)
-                        hip_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y)
-
-                        knee_x.append(landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x)
-                        knee_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y)
-
-                        ankle_1_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
-                        ankle_1_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
-
-                        foot_index_x.append(landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x)
-                        foot_index_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y)
-
-                        ankle_2_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
-                        ankle_2_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
+                    ankle_2_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
+                    ankle_2_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
 
                     # Si se desea cancelar la operación
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
+                    if cv2.waitKey(10) == 27:
                         break
                 
             else:
@@ -193,7 +180,7 @@ def process_Video(path, foot):
             # Se actualiza el número de frames
             i = i + 1
             
-    # Release webcam
+    # Release video
     video.release()
 
     # Close windows
@@ -263,11 +250,7 @@ def get_vel_angular(angle_A, fps):
 
     return vel_angle_A
 
-def process_angulos(angle_A_1, angle_B_1, angle_C_1, shoot_frame_1, fps):
-    # Cálculo de las velocidades angulares
-    vel_angle_A_1 = get_vel_angular(angle_A_1, fps)
-    vel_angle_B_1 = get_vel_angular(angle_B_1, fps)
-    vel_angle_C_1 =  get_vel_angular(angle_C_1, fps)
+def process_angulos(angle_A_1, angle_B_1, angle_C_1, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, shoot_frame_1):
 
     # Separación en etapa 1 (antes del disparo) y etapa 2 (después del disparo)
     angle_A_1_first = angle_A_1[:shoot_frame_1]
@@ -338,13 +321,20 @@ def comparar_user_con_prof(path_data_pro, data_user):
 
 
 def analizar_video(path, fps, foot):
-    #Obtener datos del video ingresado
-    user_angle_A, user_angle_B, user_angle_C, user_shoot_index = process_Video(path,foot)
+    # Obtener datos del video ingresado
+    user_angle_A, user_angle_B, user_angle_C, user_shoot_index = process_Video(path, foot)
 
-    #Calcular maximos y minimos de angulos y velocidades angulares 
-    data = process_angulos(user_angle_A, user_angle_B, user_angle_C, user_shoot_index, fps)
+    # Cálculo de las velocidades angulares
+    vel_angle_A_1 = get_vel_angular(user_angle_A, fps)
+    vel_angle_B_1 = get_vel_angular(user_angle_B, fps)
+    vel_angle_C_1 =  get_vel_angular(user_angle_C, fps)
 
-    #Comparar con jugador profesional 
+    # Calcular maximos y minimos de angulos y velocidades angulares 
+    data = process_angulos(user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index)
+
+    # Comparar con jugador profesional 
     diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz', data)
 
-    return diferencias_user_pro
+    time_data = [user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index]
+
+    return diferencias_user_pro, time_data

@@ -1,4 +1,4 @@
-from TP_Metodologia_GUI import *
+from TP_Metodologia_GUI2 import *
 from process_video import *
 import sys, os
 from PyQt5.QtWidgets import QApplication, QLabel, QBoxLayout, QMainWindow, QFileDialog, QApplication, QWidget, QPushButton, QAction, QLineEdit, QMessageBox, QRadioButton, QInputDialog
@@ -6,6 +6,10 @@ from PyQt5.QtCore import Qt, QUrl
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlayer
 from PyQt5.QtMultimediaWidgets import QVideoWidget
+
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, *args, **kwargs):
@@ -15,10 +19,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #Initialization
         self.setWindowTitle("TP Metodologia - Grupo 1")
         
-        self.resize(1920, 1080)
+        self.resize(1280, 720)
+
+        # self.comboBox_FPS.setCurrentIndex(2)
+
+        self.canvas = PlotCanvas(self)
+
+        layout = QVBoxLayout(self.plotWidget)
+        layout.addWidget(self.canvas)
 
         # VARIABLES
-        self.jugador = 0 #0 es diestro, 1 es zurdo
+        self.zurdo = False # False es diestro, True es zurdo
         self.fps = 60
         self.file_path = 0
 
@@ -75,11 +86,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def processvideo(self):
         self.fps = int(self.comboBox_FPS.currentText())
-        self.jugador = self.comboBox_Jugador.currentIndex()
+
+        if self.comboBox_Jugador.currentIndex() == 1:
+            self.zurdo = True
+        else:
+            self.zurdo = False
+
         path = self.file_path
 
         #TODO ACA VA EL CODIGO DE LA RED
-        diferencias_user_pro = analizar_video(self.file_path, self.fps, self.jugador)
+        diferencias_user_pro, time_data = analizar_video(self.file_path, self.fps, self.zurdo)
+
         self.acpr = str(diferencias_user_pro[0])   #a: angulo c:cadera, r:rodilla, t:tobillo
         self.arpr = str(diferencias_user_pro[1])   #pr: previo
         self.atpr = str(diferencias_user_pro[2])   
@@ -95,6 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.vtpo = str(diferencias_user_pro[11])
 
         self.publishcorrections()
+        self.canvas.plot(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5], time_data[6])
 
     def publishcorrections(self):
         #previos
@@ -111,3 +129,44 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.label_vcpom.setText(self.vcpo)
         self.label_vrpom.setText(self.vrpo)
         self.label_vtpom.setText(self.vtpo)
+
+#############################################
+#   Para plotear
+#############################################
+class PlotCanvas(FigureCanvas):
+    def __init__(self, parent=None):
+        self.fig = Figure()
+        super().__init__(self.fig)
+        self.setParent(parent)
+
+    def plot(self, angle_A_1, angle_B_1, angle_C_1, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, shoot_frame_1):
+        ax1 = self.fig.add_subplot(211)
+        ax2 = self.fig.add_subplot(212)
+
+            # Gráfico de los ángulos video 1
+        t = np.arange(1, len(angle_A_1) + 1, step = 1 )
+
+        ax1.plot(t, angle_A_1, color = 'black', label='Ángulo de Cadera 1')
+        ax1.plot(t, angle_B_1, color = 'red', label=' Ángulo de Rodilla 1')
+        ax1.plot(t, angle_C_1, color = 'blue', label=' Ángulo de Tobillo 1')
+        ax1.axvline(x=shoot_frame_1, color='g', linestyle='--')
+        ax1.set_xlabel("Frame")
+        ax1.set_ylabel("Ángulo [°]")
+        ax1.legend()
+        ax1.grid()
+
+        # Gráfico de las velocidades angulares video 1
+        t = np.arange(1, len(vel_angle_A_1) + 1, step = 1 )
+
+        ax2.plot(t, vel_angle_A_1, color = 'black', label='Cadera 1')
+        ax2.plot(t, vel_angle_B_1, color = 'red', label='Rodilla 1')
+        ax2.plot(t, vel_angle_C_1, color = 'blue', label="Tobillo 1")
+        ax2.axvline(x=shoot_frame_1-1, color='g', linestyle='--')
+
+        ax2.set_xlabel("Frame")
+        ax2.set_ylabel("Velocidad angular [°/s]")
+        ax2.legend()
+
+        ax2.grid()
+
+        self.draw()

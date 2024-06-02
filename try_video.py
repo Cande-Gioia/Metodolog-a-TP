@@ -93,7 +93,7 @@ def angles_calc(point1, center, point2):
     return angle_deg
 
 
-def process_Video(path):
+def process_Video(path, zurdo):
     """
     Analiza el video del path ingresado y devueve los ángulos de la Cadera, Rodilla y Tobillo
     por frame. Además, devuelve el frame en que se realiza el disparo.
@@ -102,6 +102,8 @@ def process_Video(path):
     ----------
     path : string
         Path del video a analizar
+    zurdo : bool
+        False si es derecho, True si es zurdo
 
     Retorna
     ----------
@@ -157,7 +159,9 @@ def process_Video(path):
         
         while video.isOpened():
             ret, frame = video.read()
-            
+                        # Si es zurdo, invertir la imagen
+            if zurdo:
+                frame = cv2.flip(frame, 1)
             if(ret):
                 
                 # Recolor image to RGB
@@ -207,8 +211,9 @@ def process_Video(path):
                     left_ankle_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
                     left_ankle_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
                     
+
                     # Si se desea cancelar la operación
-                    if cv2.waitKey(10) & 0xFF == ord('q'):
+                    if cv2.waitKey(10) == 27:
                         break
                 
             else:
@@ -304,7 +309,7 @@ if __name__ == "__main__":
     path_1 = "Videos Jugadores Profesionales\CR7_cortado.mp4"
 
     # Cálculo de los ángulos
-    angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1)
+    angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1, False)
 
     # Cálculo de las velocidades angulares
     vel_angle_A_1 = get_vel_angular(angle_A_1, 240)
@@ -381,8 +386,8 @@ if __name__ == "__main__":
             max_angle_A_1_second = max_angle_A_1_second, max_angle_B_1_second = max_angle_B_1_second, min_angle_C_1_second = min_angle_C_1_second,
             max_vel_angle_A_1_second = max_vel_angle_A_1_second, max_vel_angle_B_1_second = max_vel_angle_B_1_second, max_vel_angle_C_1_second = max_vel_angle_C_1_second)
 
-    #De este archivo, en el programa se obtienen datos de profesional
-    np.savez('Datos Jugadores Profesionales\Datos CR7.npz',datos_pro = array)
+    # De este archivo, en el programa se obtienen datos de profesional
+    np.savez('Datos Jugadores Profesionales\Datos CR7.npz', datos_pro = array)
 
     # Gráficos en el tiempo
     print(len(angle_A_1))

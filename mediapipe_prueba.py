@@ -14,6 +14,8 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         # Frame = gives us the image
         ret, frame = cap.read()
 
+        #frame = cv2.flip(frame, 1)
+
         # Recolor image to RGB (reordering RGB data)
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         image.flags.writeable = False
