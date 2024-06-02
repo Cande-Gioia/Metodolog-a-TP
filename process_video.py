@@ -50,7 +50,7 @@ def angles_calc(point1, center, point2):
     return angle_deg
 
 
-def process_Video(path, zurdo):
+def process_Video(path, zurdo, fps):
     """
     Analiza el video del path ingresado y devueve los ángulos de la Cadera, Rodilla y Tobillo
     por frame. Además, devuelve el frame en que se realiza el disparo.
@@ -187,23 +187,23 @@ def process_Video(path, zurdo):
     cv2.destroyAllWindows()
     
     # Se suavizan los puntos para reducir el ruido en los valores
-    shoulder_x = savgol_filter(shoulder_x, window_length=20, polyorder=1)
-    shoulder_y = savgol_filter(shoulder_y, window_length=20, polyorder=1)
+    shoulder_x = savgol_filter(shoulder_x, window_length=20 * (fps) // 240, polyorder=1)
+    shoulder_y = savgol_filter(shoulder_y, window_length=20* (fps) // 240, polyorder=1)
 
-    hip_x = savgol_filter(hip_x, window_length=20, polyorder=1)
-    hip_y = savgol_filter(hip_y, window_length=20, polyorder=1)
+    hip_x = savgol_filter(hip_x, window_length=20* (fps) // 240, polyorder=1)
+    hip_y = savgol_filter(hip_y, window_length=20* (fps) // 240, polyorder=1)
 
-    ankle_1_x = savgol_filter(ankle_1_x, window_length=20, polyorder=1) 
-    ankle_1_y = savgol_filter(ankle_1_y, window_length=20, polyorder=1)
+    ankle_1_x = savgol_filter(ankle_1_x, window_length=20* (fps) // 240, polyorder=1) 
+    ankle_1_y = savgol_filter(ankle_1_y, window_length=20* (fps) // 240, polyorder=1)
 
-    knee_x = savgol_filter(knee_x, window_length=20, polyorder=1) 
-    knee_y = savgol_filter(knee_y, window_length=20, polyorder=1)
+    knee_x = savgol_filter(knee_x, window_length=20* (fps) // 240, polyorder=1) 
+    knee_y = savgol_filter(knee_y, window_length=20* (fps) // 240, polyorder=1)
 
-    foot_index_x = savgol_filter(foot_index_x, window_length=20, polyorder=1) 
-    foot_index_y = savgol_filter(foot_index_y, window_length=20, polyorder=1)
+    foot_index_x = savgol_filter(foot_index_x, window_length=20* (fps) // 240, polyorder=1) 
+    foot_index_y = savgol_filter(foot_index_y, window_length=20* (fps) // 240, polyorder=1)
 
-    ankle_2_x = savgol_filter(ankle_2_x, window_length=20, polyorder=1) 
-    ankle_2_y = savgol_filter(ankle_2_y, window_length=20, polyorder=1) 
+    ankle_2_x = savgol_filter(ankle_2_x, window_length=20* (fps) // 240, polyorder=1) 
+    ankle_2_y = savgol_filter(ankle_2_y, window_length=20* (fps) // 240, polyorder=1) 
 
     # Se calculan todos los ángulos por frame
     for i in range(0,len(shoulder_x)):
@@ -214,9 +214,9 @@ def process_Video(path, zurdo):
         angle_C.append(angles_calc([foot_index_x[i], foot_index_y[i] ],[ankle_1_x[i], ankle_1_y[i]], [knee_x[i], knee_y[i]]))
                     
     # Se suavizan estos datos                
-    angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
-    angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
-    angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
+    angle_A = savgol_filter(angle_A, window_length=20* (fps) // 240, polyorder=1)
+    angle_B = savgol_filter(angle_B, window_length=20* (fps) // 240, polyorder=1)
+    angle_C = savgol_filter(angle_C, window_length=20* (fps) // 240, polyorder=1)
 
     # Se calcula el frame en que la distancia entre ambos tobillos es mínima, lo cual indica que la pelota ha sido pateada
     distances = [(ankle_1_x[i] - ankle_2_x[i])**2 + (ankle_1_y[i] - ankle_2_y[i])**2 for i in range(len(ankle_1_x))]
@@ -246,7 +246,7 @@ def get_vel_angular(angle_A, fps):
     vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
 
     # Se suavizan los resultados
-    vel_angle_A = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
+    vel_angle_A = savgol_filter(vel_angle_A, window_length=20 * (fps) // 240, polyorder=1)
 
     return vel_angle_A
 
@@ -271,25 +271,46 @@ def process_angulos(angle_A_1, angle_B_1, angle_C_1, vel_angle_A_1, vel_angle_B_
     vel_angle_C_1_first = vel_angle_C_1[:shoot_frame_1]
     vel_angle_C_1_second = vel_angle_C_1[shoot_frame_1:]
 
+    frames = []
     # Primera Etapa:
     #   Se analizan los valores de los ángulos y velocidades angulares máximas
     min_angle_A_1_first = np.min(angle_A_1_first)
+    frames.append(np.argmin(angle_A_1_first))
+
     min_angle_B_1_first = np.min(angle_B_1_first)
+    frames.append(np.argmin(angle_B_1_first))
+
     max_angle_C_1_first = np.max(angle_C_1_first)
+    frames.append(np.argmax(angle_C_1_first))
 
     max_vel_angle_A_1_first = np.max(vel_angle_A_1_first)
+    frames.append(np.argmax(vel_angle_A_1_first))
+
     max_vel_angle_B_1_first = np.max(vel_angle_B_1_first)
+    frames.append(np.argmax(vel_angle_B_1_first))
+
     max_vel_angle_C_1_first = np.min(vel_angle_C_1_first)
+    frames.append(np.argmax(vel_angle_C_1_first))
 
     # Segunda etapa:
     #   Se analizan los valores de los ángulos y velocidades angulares máximas
     max_angle_A_1_second = np.max(angle_A_1_second)
+    frames.append(np.argmax(angle_A_1_second) + shoot_frame_1)
+
     max_angle_B_1_second = np.max(angle_B_1_second)
+    frames.append(np.argmax(angle_B_1_second) + shoot_frame_1)
+
     min_angle_C_1_second = np.min(angle_C_1_second)
+    frames.append(np.argmax(angle_C_1_second) + shoot_frame_1)
 
     max_vel_angle_A_1_second = np.max(vel_angle_A_1_second)
+    frames.append(np.argmax(vel_angle_A_1_second) + shoot_frame_1)
+
     max_vel_angle_B_1_second = np.max(vel_angle_B_1_second)
+    frames.append(np.argmax(vel_angle_B_1_second) + shoot_frame_1)
+
     max_vel_angle_C_1_second = np.min(vel_angle_C_1_second)
+    frames.append(np.argmin(vel_angle_C_1_second) + shoot_frame_1)
 
     array = [min_angle_A_1_first,
             min_angle_B_1_first,
@@ -307,7 +328,7 @@ def process_angulos(angle_A_1, angle_B_1, angle_C_1, vel_angle_A_1, vel_angle_B_
             max_vel_angle_B_1_second,
             max_vel_angle_C_1_second]
     
-    return array
+    return array, frames
 
 
 def comparar_user_con_prof(path_data_pro, data_user):
@@ -315,14 +336,19 @@ def comparar_user_con_prof(path_data_pro, data_user):
     data_pro = data['datos_pro'] 
     diferencias_user_pro = [] 
     for i in range(0,len(data_user)):
-        diferencias_user_pro.append(data_pro[i] - data_user[i])
+        if (i >= 3 and i <=5) or (i >= 9 and i <=11):
+            # Para las velocidades, sólo nos interesa la diferencia con el valor absoluto
+            # (El signo puede depender de si está yendo en sentido horario o antihorario)
+            diferencias_user_pro.append(abs(data_user[i]) - abs(data_pro[i]))
+        else:
+            diferencias_user_pro.append(data_user[i] - data_pro[i])
     
     return diferencias_user_pro
 
 
 def analizar_video(path, fps, foot):
     # Obtener datos del video ingresado
-    user_angle_A, user_angle_B, user_angle_C, user_shoot_index = process_Video(path, foot)
+    user_angle_A, user_angle_B, user_angle_C, user_shoot_index = process_Video(path, foot, fps)
 
     # Cálculo de las velocidades angulares
     vel_angle_A_1 = get_vel_angular(user_angle_A, fps)
@@ -330,11 +356,37 @@ def analizar_video(path, fps, foot):
     vel_angle_C_1 =  get_vel_angular(user_angle_C, fps)
 
     # Calcular maximos y minimos de angulos y velocidades angulares 
-    data = process_angulos(user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index)
+    data, frames = process_angulos(user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index)
 
     # Comparar con jugador profesional 
     diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz', data)
 
     time_data = [user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index]
 
-    return diferencias_user_pro, time_data
+    return diferencias_user_pro, time_data, frames
+
+
+def extract_frame(video_path, frame_number, output_image_path):
+    # Open the video file
+    cap = cv2.VideoCapture(video_path)
+
+    # Check if video opened successfully
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        return
+
+    # Set the frame position
+    cap.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+
+    # Read the frame
+    ret, frame = cap.read()
+
+    if ret:
+        # Save the frame as an image
+        cv2.imwrite(output_image_path, frame)
+        print(f"Frame {frame_number} is saved as {output_image_path}")
+    else:
+        print(f"Error: Could not read frame {frame_number}.")
+
+    # Release the video capture object
+    cap.release()

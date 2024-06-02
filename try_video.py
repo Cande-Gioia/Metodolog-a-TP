@@ -93,7 +93,7 @@ def angles_calc(point1, center, point2):
     return angle_deg
 
 
-def process_Video(path, zurdo):
+def process_Video(path, zurdo, fps):
     """
     Analiza el video del path ingresado y devueve los ángulos de la Cadera, Rodilla y Tobillo
     por frame. Además, devuelve el frame en que se realiza el disparo.
@@ -229,23 +229,23 @@ def process_Video(path, zurdo):
     cv2.destroyAllWindows()
     
     # Se suavizan los puntos para reducir el ruido en los valores
-    right_shoulder_x = savgol_filter(right_shoulder_x, window_length=20, polyorder=1)
-    right_shoulder_y = savgol_filter(right_shoulder_y, window_length=20, polyorder=1)
+    right_shoulder_x = savgol_filter(right_shoulder_x, window_length=20 * fps // 240, polyorder=1)
+    right_shoulder_y = savgol_filter(right_shoulder_y, window_length=20 * fps // 240, polyorder=1)
 
-    right_hip_x = savgol_filter(right_hip_x, window_length=20, polyorder=1)
-    right_hip_y = savgol_filter(right_hip_y, window_length=20, polyorder=1)
+    right_hip_x = savgol_filter(right_hip_x, window_length=20 * fps // 240, polyorder=1)
+    right_hip_y = savgol_filter(right_hip_y, window_length=20 * fps // 240, polyorder=1)
 
-    right_ankle_x = savgol_filter(right_ankle_x, window_length=20, polyorder=1) 
-    right_ankle_y = savgol_filter(right_ankle_y, window_length=20, polyorder=1)
+    right_ankle_x = savgol_filter(right_ankle_x, window_length=20 * fps // 240, polyorder=1) 
+    right_ankle_y = savgol_filter(right_ankle_y, window_length=20 * fps // 240, polyorder=1)
 
-    right_knee_x = savgol_filter(right_knee_x, window_length=20, polyorder=1) 
-    right_knee_y = savgol_filter(right_knee_y, window_length=20, polyorder=1)
+    right_knee_x = savgol_filter(right_knee_x, window_length=20 * fps // 240, polyorder=1) 
+    right_knee_y = savgol_filter(right_knee_y, window_length=20 * fps // 240, polyorder=1)
 
-    right_foot_index_x = savgol_filter(right_foot_index_x, window_length=20, polyorder=1) 
-    right_foot_index_y = savgol_filter(right_foot_index_y, window_length=20, polyorder=1)
+    right_foot_index_x = savgol_filter(right_foot_index_x, window_length=20 * fps // 240, polyorder=1) 
+    right_foot_index_y = savgol_filter(right_foot_index_y, window_length=20 * fps // 240, polyorder=1)
 
-    left_ankle_x = savgol_filter(left_ankle_x, window_length=20, polyorder=1) 
-    left_ankle_y = savgol_filter(left_ankle_y, window_length=20, polyorder=1) 
+    left_ankle_x = savgol_filter(left_ankle_x, window_length=20 * fps // 240, polyorder=1) 
+    left_ankle_y = savgol_filter(left_ankle_y, window_length=20 * fps // 240, polyorder=1) 
 
     # Se calculan todos los ángulos por frame
     for i in range(0,len(right_shoulder_x)):
@@ -256,9 +256,9 @@ def process_Video(path, zurdo):
         angle_C.append(angles_calc([right_foot_index_x[i], right_foot_index_y[i] ],[right_ankle_x[i], right_ankle_y[i]], [right_knee_x[i], right_knee_y[i]]))
                     
     # Se suavizan estos datos                
-    angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
-    angle_B = savgol_filter(angle_B, window_length=20, polyorder=1)
-    angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
+    angle_A = savgol_filter(angle_A, window_length=20 * fps // 240, polyorder=1)
+    angle_B = savgol_filter(angle_B, window_length=20 * fps // 240, polyorder=1)
+    angle_C = savgol_filter(angle_C, window_length=20 * fps // 240, polyorder=1)
 
     # Se calcula el frame en que la distancia entre ambos tobillos es mínima, lo cual indica que la pelota ha sido pateada
     distances = [(right_ankle_x[i] - left_ankle_x[i])**2 + (right_ankle_y[i] - left_ankle_y[i])**2 for i in range(len(right_ankle_x))]
@@ -288,7 +288,7 @@ def get_vel_angular(angle_A, fps):
     vel_angle_A = [(angle_A[i] - angle_A[i-1]) * fps for i in range(1, len(angle_A))]
 
     # Se suavizan los resultados
-    vel_angle_A = savgol_filter(vel_angle_A, window_length=20, polyorder=1)
+    vel_angle_A = savgol_filter(vel_angle_A, window_length=20 * fps // 240, polyorder=1)
 
     return vel_angle_A
 
@@ -306,10 +306,12 @@ def score_calculation(all_number, porcen):
 if __name__ == "__main__":
 
     # Path del video de referencia
-    path_1 = "Videos Jugadores Profesionales\CR7_cortado.mp4"
+    path_1 = "Videos Jugadores Profesionales\KevinDeBruyne_cortado.mp4.mp4"
+
+    fps = 240
 
     # Cálculo de los ángulos
-    angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1, False)
+    angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1, False, fps)
 
     # Cálculo de las velocidades angulares
     vel_angle_A_1 = get_vel_angular(angle_A_1, 240)
@@ -377,17 +379,17 @@ if __name__ == "__main__":
     print(array)
 
 
-    np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo tiempo.npz', angle_A_1 = angle_A_1, angle_B_1 = angle_B_1, angle_C_1 = angle_C_1, shoot_frame_1 = shoot_frame_1,
-                                            vel_angle_A_1 = vel_angle_A_1, vel_angle_B_1 = vel_angle_B_1, vel_angle_C_1 = vel_angle_C_1)
+    # np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo tiempo.npz', angle_A_1 = angle_A_1, angle_B_1 = angle_B_1, angle_C_1 = angle_C_1, shoot_frame_1 = shoot_frame_1,
+    #                                         vel_angle_A_1 = vel_angle_A_1, vel_angle_B_1 = vel_angle_B_1, vel_angle_C_1 = vel_angle_C_1)
     
-    np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo valores maximos y minimos.npz', 
-            min_angle_A_1_first = min_angle_A_1_first, min_angle_B_1_first =  min_angle_B_1_first, max_angle_C_1_first = max_angle_C_1_first,
-            max_vel_angle_A_1_first = max_vel_angle_A_1_first, max_vel_angle_B_1_first = max_vel_angle_B_1_first, max_vel_angle_C_1_first = max_vel_angle_C_1_first, 
-            max_angle_A_1_second = max_angle_A_1_second, max_angle_B_1_second = max_angle_B_1_second, min_angle_C_1_second = min_angle_C_1_second,
-            max_vel_angle_A_1_second = max_vel_angle_A_1_second, max_vel_angle_B_1_second = max_vel_angle_B_1_second, max_vel_angle_C_1_second = max_vel_angle_C_1_second)
+    # np.savez('Datos Jugadores Profesionales\Datos Cristiano Ronaldo valores maximos y minimos.npz', 
+    #         min_angle_A_1_first = min_angle_A_1_first, min_angle_B_1_first =  min_angle_B_1_first, max_angle_C_1_first = max_angle_C_1_first,
+    #         max_vel_angle_A_1_first = max_vel_angle_A_1_first, max_vel_angle_B_1_first = max_vel_angle_B_1_first, max_vel_angle_C_1_first = max_vel_angle_C_1_first, 
+    #         max_angle_A_1_second = max_angle_A_1_second, max_angle_B_1_second = max_angle_B_1_second, min_angle_C_1_second = min_angle_C_1_second,
+    #         max_vel_angle_A_1_second = max_vel_angle_A_1_second, max_vel_angle_B_1_second = max_vel_angle_B_1_second, max_vel_angle_C_1_second = max_vel_angle_C_1_second)
 
     # De este archivo, en el programa se obtienen datos de profesional
-    np.savez('Datos Jugadores Profesionales\Datos CR7.npz', datos_pro = array)
+    np.savez('Datos Jugadores Profesionales\Datos De Bruyne.npz', datos_pro = array)
 
     # Gráficos en el tiempo
     print(len(angle_A_1))
