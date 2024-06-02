@@ -83,23 +83,23 @@ def process_Video(path, foot):
     angle_B = []
     angle_C = []
 
-    right_shoulder_x = []
-    right_shoulder_y = []
+    shoulder_x = []
+    shoulder_y = []
 
-    right_hip_x = []
-    right_hip_y = []
+    hip_x = []
+    hip_y = []
 
-    right_knee_x = []
-    right_knee_y = []
+    knee_x = []
+    knee_y = []
 
-    right_ankle_x = []
-    right_ankle_y = []
+    ankle_1_x = []
+    ankle_1_y = []
 
-    left_ankle_x = []
-    left_ankle_y = []
+    ankle_2_x = []
+    ankle_2_y = []
 
-    right_foot_index_x = []
-    right_foot_index_y = []
+    foot_index_x = []
+    foot_index_y = []
 
 
     video = cv2.VideoCapture(path)
@@ -134,7 +134,7 @@ def process_Video(path, foot):
                                     mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
                                     )          
 
-                window_name = 'Mi Ventana'
+                window_name = 'Procesamiento de imágenes'
                 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
                 cv2.resizeWindow(window_name, 800, 600)
@@ -145,25 +145,44 @@ def process_Video(path, foot):
                 if(results.pose_landmarks != None):
                     landmarks = results.pose_landmarks.landmark
 
-                    # Se almacenan los puntos
-                    right_shoulder_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x)
-                    right_shoulder_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y)
+                    # Se almacenan los puntos segun diestro o zurdo
+                    if(foot == 0):
+                        shoulder_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x)
+                        shoulder_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].y)
 
-                    right_hip_x.append( landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x)
-                    right_hip_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y)
+                        hip_x.append( landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].x)
+                        hip_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_HIP.value].y)
 
-                    right_knee_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x)
-                    right_knee_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y)
+                        knee_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].x)
+                        knee_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_KNEE.value].y)
 
-                    right_ankle_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
-                    right_ankle_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
+                        ankle_1_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
+                        ankle_1_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
 
-                    right_foot_index_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x)
-                    right_foot_index_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y)
+                        foot_index_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].x)
+                        foot_index_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_FOOT_INDEX.value].y)
 
-                    left_ankle_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
-                    left_ankle_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
-                    
+                        ankle_2_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
+                        ankle_2_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
+                    else:
+                        shoulder_x.append(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x)
+                        shoulder_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value].y)
+
+                        hip_x.append( landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].x)
+                        hip_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_HIP.value].y)
+
+                        knee_x.append(landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].x)
+                        knee_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_KNEE.value].y)
+
+                        ankle_1_x.append(landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].x)
+                        ankle_1_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_ANKLE.value].y)
+
+                        foot_index_x.append(landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].x)
+                        foot_index_y.append(-landmarks[mp_pose.PoseLandmark.LEFT_FOOT_INDEX.value].y)
+
+                        ankle_2_x.append(landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x)
+                        ankle_2_y.append(-landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y)
+
                     # Si se desea cancelar la operación
                     if cv2.waitKey(10) & 0xFF == ord('q'):
                         break
@@ -181,31 +200,31 @@ def process_Video(path, foot):
     cv2.destroyAllWindows()
     
     # Se suavizan los puntos para reducir el ruido en los valores
-    right_shoulder_x = savgol_filter(right_shoulder_x, window_length=20, polyorder=1)
-    right_shoulder_y = savgol_filter(right_shoulder_y, window_length=20, polyorder=1)
+    shoulder_x = savgol_filter(shoulder_x, window_length=20, polyorder=1)
+    shoulder_y = savgol_filter(shoulder_y, window_length=20, polyorder=1)
 
-    right_hip_x = savgol_filter(right_hip_x, window_length=20, polyorder=1)
-    right_hip_y = savgol_filter(right_hip_y, window_length=20, polyorder=1)
+    hip_x = savgol_filter(hip_x, window_length=20, polyorder=1)
+    hip_y = savgol_filter(hip_y, window_length=20, polyorder=1)
 
-    right_ankle_x = savgol_filter(right_ankle_x, window_length=20, polyorder=1) 
-    right_ankle_y = savgol_filter(right_ankle_y, window_length=20, polyorder=1)
+    ankle_1_x = savgol_filter(ankle_1_x, window_length=20, polyorder=1) 
+    ankle_1_y = savgol_filter(ankle_1_y, window_length=20, polyorder=1)
 
-    right_knee_x = savgol_filter(right_knee_x, window_length=20, polyorder=1) 
-    right_knee_y = savgol_filter(right_knee_y, window_length=20, polyorder=1)
+    knee_x = savgol_filter(knee_x, window_length=20, polyorder=1) 
+    knee_y = savgol_filter(knee_y, window_length=20, polyorder=1)
 
-    right_foot_index_x = savgol_filter(right_foot_index_x, window_length=20, polyorder=1) 
-    right_foot_index_y = savgol_filter(right_foot_index_y, window_length=20, polyorder=1)
+    foot_index_x = savgol_filter(foot_index_x, window_length=20, polyorder=1) 
+    foot_index_y = savgol_filter(foot_index_y, window_length=20, polyorder=1)
 
-    left_ankle_x = savgol_filter(left_ankle_x, window_length=20, polyorder=1) 
-    left_ankle_y = savgol_filter(left_ankle_y, window_length=20, polyorder=1) 
+    ankle_2_x = savgol_filter(ankle_2_x, window_length=20, polyorder=1) 
+    ankle_2_y = savgol_filter(ankle_2_y, window_length=20, polyorder=1) 
 
     # Se calculan todos los ángulos por frame
-    for i in range(0,len(right_shoulder_x)):
-        angle_A.append(angles_calc([right_shoulder_x[i], right_shoulder_y[i]], [right_hip_x[i],right_hip_y[i]],[right_knee_x[i], right_knee_y[i]]))
+    for i in range(0,len(shoulder_x)):
+        angle_A.append(angles_calc([shoulder_x[i], shoulder_y[i]], [hip_x[i],hip_y[i]],[knee_x[i], knee_y[i]]))
 
-        angle_B.append(angles_calc([right_hip_x[i],right_hip_y[i]],[right_knee_x[i], right_knee_y[i]], [right_ankle_x[i], right_ankle_y[i]]))
+        angle_B.append(angles_calc([hip_x[i],hip_y[i]],[knee_x[i], knee_y[i]], [ankle_1_x[i], ankle_1_y[i]]))
 
-        angle_C.append(angles_calc([right_foot_index_x[i], right_foot_index_y[i] ],[right_ankle_x[i], right_ankle_y[i]], [right_knee_x[i], right_knee_y[i]]))
+        angle_C.append(angles_calc([foot_index_x[i], foot_index_y[i] ],[ankle_1_x[i], ankle_1_y[i]], [knee_x[i], knee_y[i]]))
                     
     # Se suavizan estos datos                
     angle_A = savgol_filter(angle_A, window_length=20, polyorder=1)
@@ -213,7 +232,7 @@ def process_Video(path, foot):
     angle_C = savgol_filter(angle_C, window_length=20, polyorder=1)
 
     # Se calcula el frame en que la distancia entre ambos tobillos es mínima, lo cual indica que la pelota ha sido pateada
-    distances = [(right_ankle_x[i] - left_ankle_x[i])**2 + (right_ankle_y[i] - left_ankle_y[i])**2 for i in range(len(right_ankle_x))]
+    distances = [(ankle_1_x[i] - ankle_2_x[i])**2 + (ankle_1_y[i] - ankle_2_y[i])**2 for i in range(len(ankle_1_x))]
 
     shoot_index = np.argmin(distances)
 
@@ -326,6 +345,6 @@ def analizar_video(path, fps, foot):
     data = process_angulos(user_angle_A, user_angle_B, user_angle_C, user_shoot_index, fps)
 
     #Comparar con jugador profesional 
-    diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz',data)
+    diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz', data)
 
     return diferencias_user_pro

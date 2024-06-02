@@ -1,3 +1,15 @@
+import numpy as np
+
+# Cargar los arrays desde el archivo NPZ
+data = np.load('Datos Jugadores Profesionales\Datos CR7.npz')
+
+
+# Acceder a los arrays por nombre
+array1_loaded = data['datos_pro']
+
+print("Array 1:", array1_loaded)
+
+'''
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -44,3 +56,4 @@ plt.legend()
 # Mostrar el gráfico
 plt.grid(True)
 plt.show()
+'''
