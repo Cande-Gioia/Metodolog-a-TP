@@ -143,7 +143,7 @@ def process_Video(path, zurdo, fps):
                 window_name = 'Procesamiento de imagenes'
                 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
-                cv2.resizeWindow(window_name, 800, 600)
+                cv2.resizeWindow(window_name, 1280, 720)
                 cv2.imshow(window_name, image)
                 
                 # Get coordinates
