@@ -359,7 +359,7 @@ def analizar_video(path, fps, foot):
     data, frames = process_angulos(user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index)
 
     # Comparar con jugador profesional 
-    diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos CR7.npz', data)
+    diferencias_user_pro = comparar_user_con_prof('Datos Jugadores Profesionales\Datos Promediados.npz', data)
 
     time_data = [user_angle_A, user_angle_B, user_angle_C, vel_angle_A_1, vel_angle_B_1, vel_angle_C_1, user_shoot_index]
 

@@ -12,7 +12,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 
-path = 'Videos Jugadores Profesionales\CR7_cortado.mp4' 
 
 #NO FUNCIONAN:
 '''
@@ -184,7 +183,7 @@ def process_Video(path, zurdo, fps):
                 window_name = 'Mi Ventana'
                 cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 
-                cv2.resizeWindow(window_name, 800, 600)
+                cv2.resizeWindow(window_name, 1280, 720)
                 cv2.imshow(window_name, image)
                 
                 # Get coordinates
@@ -306,17 +305,20 @@ def score_calculation(all_number, porcen):
 if __name__ == "__main__":
 
     # Path del video de referencia
-    path_1 = "Videos Jugadores Profesionales\KevinDeBruyne_cortado.mp4.mp4"
+    path_1 = "Videos Jugadores Profesionales\KevinDeBruyne_cortado.mp4"
 
-    fps = 240
+    # CR7 son 240 fps
+    # De Bruyne son 120 FPS
+    # Real Madrid son 60 fps
+    fps = 120
 
     # Cálculo de los ángulos
     angle_A_1, angle_B_1, angle_C_1, shoot_frame_1 = process_Video(path_1, False, fps)
 
     # Cálculo de las velocidades angulares
-    vel_angle_A_1 = get_vel_angular(angle_A_1, 240)
-    vel_angle_B_1 = get_vel_angular(angle_B_1, 240)
-    vel_angle_C_1 =  get_vel_angular(angle_C_1, 240)
+    vel_angle_A_1 = get_vel_angular(angle_A_1, fps)
+    vel_angle_B_1 = get_vel_angular(angle_B_1, fps)
+    vel_angle_C_1 =  get_vel_angular(angle_C_1, fps)
 
 
     # Separación en etapa 1 (antes del disparo) y etapa 2 (después del disparo)
@@ -425,3 +427,18 @@ if __name__ == "__main__":
     plt.grid()
 
     plt.show()
+
+
+    data = np.load('Datos Jugadores Profesionales\Datos CR7.npz')
+    data_pro1 = data['datos_pro']
+    
+    data = np.load('Datos Jugadores Profesionales\Datos De Bruyne.npz')
+    data_pro2 = data['datos_pro'] 
+
+    array = []
+    for i in range(0,len(data_pro1)):
+        array.append((data_pro1[i] + data_pro2[i])/2)
+        print(data_pro1[i], data_pro2[i], (data_pro1[i] + data_pro2[i])/2)
+    
+    np.savez('Datos Jugadores Profesionales\Datos Promediados.npz', datos_pro = array)
+    
