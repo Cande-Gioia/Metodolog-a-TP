@@ -1,1 +1,1 @@
-# Metodologa-TP-Análisis de Tiro Libre
+# Metodologia-TP-Análisis de Tiro Libre
